@@ -97,10 +97,10 @@ const FAQ = [
   { q: "How do I find the best meeting time for a global team?", a: "Use the Meeting Planner tab to add all participants' cities. The tool highlights overlapping work hours (9am–6pm) in green, so you can instantly see when everyone is available during normal business hours." },
   { q: "What do the color bands on the timeline mean?", a: "Green bands represent standard work hours (9am–6pm). Yellow/amber bands show early morning or evening hours when people are awake but outside work time. Dark bands indicate typical sleeping hours (10pm–7am), helping you avoid scheduling calls that wake someone up." },
   { q: "Does this tool account for Daylight Saving Time?", a: "Yes. All time conversions use your device's live timezone data, which automatically updates for Daylight Saving Time transitions in every country. The timezone offset displayed next to each city always reflects the current DST-adjusted time." },
-  { q: "Can I share my timezone comparison with someone?", a: "Yes — click 'Copy Link' on any comparison and the URL captures your exact configuration. Anyone who opens the link sees the same cities and time settings instantly, no account required." },
-  { q: "How many time zones can I compare at once?", a: "You can compare up to 8 cities simultaneously in the free tool. This covers most global team setups — typically US, Europe, and Asia/Pacific combinations." },
-  { q: "What is UTC and why does it matter?", a: "UTC (Coordinated Universal Time) is the world's time standard. All timezones are defined as offsets from UTC — for example, New York is UTC-5 in winter and UTC-4 in summer. UTC never changes for Daylight Saving, making it useful as a universal reference." },
-  { q: "Which cities have the most difficult time zone overlaps?", a: "US West Coast (Los Angeles, UTC-8) and Asia-Pacific (Tokyo, UTC+9, Sydney UTC+11) have a 17–19 hour gap — the hardest overlap globally. The only workable window is typically 7–9am in Asia, which corresponds to 3–5pm the previous day in Los Angeles." },
+  { q: "Can I share my timezone comparison with someone?", a: "Yes, click 'Copy Link' on any comparison and the URL captures your exact configuration. Anyone who opens the link sees the same cities and time settings instantly, no account required." },
+  { q: "How many time zones can I compare at once?", a: "You can compare up to 8 cities simultaneously in the free tool. This covers most global team setups, typically US, Europe, and Asia/Pacific combinations." },
+  { q: "What is UTC and why does it matter?", a: "UTC (Coordinated Universal Time) is the world's time standard. All timezones are defined as offsets from UTC. For example, New York is UTC-5 in winter and UTC-4 in summer. UTC never changes for Daylight Saving, making it useful as a universal reference." },
+  { q: "Which cities have the most difficult time zone overlaps?", a: "US West Coast (Los Angeles, UTC-8) and Asia-Pacific (Tokyo, UTC+9, Sydney UTC+11) have a 17–19 hour gap, the hardest overlap globally. The only workable window is typically 7–9am in Asia, which corresponds to 3–5pm the previous day in Los Angeles." },
 ];
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -154,9 +154,9 @@ export default function WorldTimezone() {
   const meetingDateObj = new Date(meetingDate + "T00:00:00");
 
   return (
-    <div style={{ fontFamily: "'Syne', 'Space Grotesk', system-ui, sans-serif", background: "var(--bg, #060d1f)", color: "var(--text, #e8f0ff)", minHeight: "100vh", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", background: "var(--bg, #060d1f)", color: "var(--text, #e8f0ff)", minHeight: "100vh", overflowX: "hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
         :root {
           --bg: #060d1f;
           --bg2: #0c1730;
@@ -180,8 +180,8 @@ export default function WorldTimezone() {
           --radius: 12px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); }
-        input, button, select { font-family: inherit; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
+        input, button, select { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
         button { cursor: pointer; border: none; background: none; color: inherit; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg2); }
@@ -190,18 +190,18 @@ export default function WorldTimezone() {
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
         .fade-in { animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-        .tab-btn { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s; color: var(--text2); border: 1px solid transparent; }
+        .tab-btn { padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 700; letter-spacing: -0.1px; transition: all 0.2s; color: var(--text2); border: 1px solid transparent; }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active { background: var(--cyan-dim); border-color: var(--border); color: var(--cyan); }
-        .zone-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 16px; transition: border-color 0.2s; }
-        .zone-card:hover { border-color: var(--border); }
+        .zone-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .zone-card:hover { border-color: var(--border); box-shadow: 0 4px 24px rgba(0,200,255,0.06); }
         .hour-cell { height: 36px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: 'Space Mono', monospace; transition: all 0.15s; cursor: pointer; border-radius: 4px; }
         .hour-cell:hover { transform: scaleY(1.1); }
         .faq-item { border-bottom: 1px solid var(--border2); overflow: hidden; }
-        .faq-q { padding: 16px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text); gap: 12px; }
+        .faq-q { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 16px; font-weight: 700; color: var(--text); gap: 12px; letter-spacing: -0.2px; }
         .faq-q:hover { color: var(--cyan); }
-        .faq-a { font-size: 13px; color: var(--text2); line-height: 1.7; padding-bottom: 16px; }
-        .search-item { padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; border-radius: 8px; }
+        .faq-a { font-size: 15px; color: var(--text2); line-height: 1.75; padding-bottom: 20px; }
+        .search-item { padding: 11px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; border-radius: 8px; font-weight: 500; }
         .search-item:hover { background: var(--bg3); }
         .meeting-slot { flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: 'Space Mono', monospace; border-radius: 4px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
         .meeting-slot:hover { transform: scaleY(1.05); }
@@ -234,11 +234,11 @@ export default function WorldTimezone() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #00c8ff, #0050ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🌐</div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px" }}>
+              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1px" }}>
                 Zone<span style={{ color: "#00c8ff" }}>Atlas</span>
               </h1>
             </div>
-            <p style={{ fontSize: 13, color: "var(--text2)" }}>World time zones · Meeting planner · Sleep-aware scheduling</p>
+            <p style={{ fontSize: 15, color: "var(--text2)", fontWeight: 500 }}>World time zones · Meeting planner · Sleep-aware scheduling</p>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button onClick={() => setUse24(v => !v)} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: use24 ? "var(--cyan-dim)" : "transparent", color: use24 ? "var(--cyan)" : "var(--text2)", fontSize: 12, fontWeight: 500 }}>
@@ -274,13 +274,13 @@ export default function WorldTimezone() {
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ fontSize: 18 }}>{zone.flag}</span>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>{zone.name}</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px" }}>{zone.name}</div>
                           <div style={{ fontSize: 11, color: "var(--text3)" }}>{getOffsetLabel(zone.tz)}</div>
                         </div>
                       </div>
                       <button onClick={() => removeZone(idx)} style={{ color: "var(--text3)", fontSize: 14, padding: "2px 4px", borderRadius: 4, opacity: 0.6 }}>✕</button>
                     </div>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 20, fontWeight: 700, color: "var(--cyan)", letterSpacing: "0.5px", marginBottom: 4 }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 24, fontWeight: 700, color: "var(--cyan)", letterSpacing: "0.5px", marginBottom: 6 }}>
                       {formatTime(t, use24)}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text2)", marginBottom: 8 }}>{getDateInZone(zone.tz, now)}</div>
@@ -325,7 +325,7 @@ export default function WorldTimezone() {
             {/* 24h Timeline */}
             {selectedZones.length > 0 && (
               <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: "16px", marginBottom: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: "var(--text2)" }}>24-Hour Overlap View</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: "var(--text2)", letterSpacing: "-0.2px" }}>24-Hour Overlap View</div>
                 <div style={{ overflowX: "auto", paddingBottom: 8 }}>
                   {/* Hour labels */}
                   <div style={{ display: "flex", minWidth: 600, marginBottom: 4 }}>
@@ -445,7 +445,7 @@ export default function WorldTimezone() {
               </div>
 
               <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg3)", borderRadius: 8, border: "1px solid var(--border)" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--cyan)", marginBottom: 8 }}>📋 Meeting Summary</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--cyan)", marginBottom: 10, letterSpacing: "-0.2px" }}>📋 Meeting Summary</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 8 }}>
                   {selectedZones.map((zone, i) => {
                     const localH = getTimeInZone(zone.tz, new Date(now.getTime() + (meetingHour - now.getHours()) * 3600000)).getHours();
@@ -462,15 +462,15 @@ export default function WorldTimezone() {
                   })}
                 </div>
                 <div style={{ marginTop: 10, fontSize: 11, color: "var(--text3)" }}>
-                  ✅ Work hours &nbsp;⚠️ Outside work but awake &nbsp;😴 Sleeping — consider rescheduling
+                  ✅ Work hours &nbsp;⚠️ Outside work but awake &nbsp;😴 Sleeping. Consider rescheduling
                 </div>
               </div>
             </div>
 
             {/* Best time suggestion */}
             <div style={{ background: "linear-gradient(135deg, rgba(0,200,255,0.06), rgba(0,80,255,0.06))", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "var(--cyan)" }}>🎯 Best Meeting Windows Today</div>
-              <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.8 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--cyan)", letterSpacing: "-0.3px" }}>🎯 Best Meeting Windows Today</div>
+              <div style={{ fontSize: 15, color: "var(--text2)", lineHeight: 1.9 }}>
                 {(() => {
                   const windows = [];
                   for (let h = 0; h < 24; h++) {
@@ -588,7 +588,7 @@ export default function WorldTimezone() {
 
         {/* ── FAQ ── */}
         <div style={{ marginTop: 48 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, letterSpacing: "-0.5px" }}>
             Frequently Asked <span style={{ color: "var(--cyan)" }}>Questions</span>
           </h2>
           <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: "0 20px" }}>
@@ -607,20 +607,20 @@ export default function WorldTimezone() {
         {/* ── About / SEO ── */}
         <div style={{ marginTop: 48, padding: 24, background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)" }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>About <span style={{ color: "var(--cyan)" }}>ZoneAtlas</span></h2>
-          <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.8, marginBottom: 12 }}>
-            ZoneAtlas is a free world time zone converter and international meeting scheduler designed for remote teams, frequent travelers, and global professionals. Unlike other timezone tools, ZoneAtlas shows you <strong style={{ color: "var(--text)" }}>sleep hours</strong> alongside work hours — so you never accidentally schedule a call at 3am for your colleague in Tokyo again.
+          <p style={{ fontSize: 16, color: "var(--text2)", lineHeight: 1.8, marginBottom: 14 }}>
+            ZoneAtlas is a free world time zone converter and international meeting scheduler designed for remote teams, frequent travelers, and global professionals. Unlike other timezone tools, ZoneAtlas shows you <strong style={{ color: "var(--text)" }}>sleep hours</strong> alongside work hours, so you never accidentally schedule a call at 3am for your colleague in Tokyo again.
           </p>
-          <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.8, marginBottom: 12 }}>
+          <p style={{ fontSize: 16, color: "var(--text2)", lineHeight: 1.8, marginBottom: 14 }}>
             The <strong style={{ color: "var(--text)" }}>Meeting Planner</strong> automatically highlights overlapping work hours across all your selected cities, calculates the best meeting windows, and generates a copy-ready time string you can paste directly into your calendar invite or Slack message.
           </p>
           <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.8 }}>
-            All time conversions are powered by your browser's live timezone database, ensuring <strong style={{ color: "var(--text)" }}>automatic Daylight Saving Time accuracy</strong> for all 40 countries that observe DST — no manual updates needed.
+            All time conversions are powered by your browser's live timezone database, ensuring <strong style={{ color: "var(--text)" }}>automatic Daylight Saving Time accuracy</strong> for all 40 countries that observe DST. No manual updates needed.
           </p>
         </div>
 
         {/* Footer */}
         <div style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--border2)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 12, color: "var(--text3)" }}>ZoneAtlas · Free World Time Zone Converter</span>
+          <span style={{ fontSize: 13, color: "var(--text3)" }}>ZoneAtlas · Free World Time Zone Converter</span>
           <span style={{ fontSize: 11, color: "var(--text3)" }}>Live · DST-aware · No signup required</span>
         </div>
       </div>
