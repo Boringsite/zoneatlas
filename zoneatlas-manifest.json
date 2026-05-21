@@ -1,0 +1,40 @@
+{
+  "name": "ZoneAtlas — World Time Zone Converter",
+  "short_name": "ZoneAtlas",
+  "description": "Compare world time zones, plan meetings across cities, and schedule with sleep-hour awareness.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060d1f",
+  "theme_color": "#00c8ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity", "travel"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "World Clock",
+      "short_name": "Clock",
+      "description": "View world clocks",
+      "url": "/?tab=clock"
+    },
+    {
+      "name": "Meeting Planner",
+      "short_name": "Planner",
+      "description": "Plan a global meeting",
+      "url": "/?tab=planner"
+    }
+  ]
+}
