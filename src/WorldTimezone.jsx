@@ -227,6 +227,9 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
   useEffect(() => {
     localStorage.setItem("za_theme", lightMode ? "light" : "dark");
   }, [lightMode]);
+
+  // Save last cities whenever zones change
+  useEffect(() => {
     if (zones.length) localStorage.setItem("za_last_cities", JSON.stringify(zones.map(z => z.name)));
   }, [zones]);
 
