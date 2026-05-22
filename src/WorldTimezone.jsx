@@ -1,320 +1,698 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
-// ── Timezone Data ──────────────────────────────────────────────────────────────
+// ── City Data ─────────────────────────────────────────────────────────────────
 const CITIES = [
-  { name: "New York", tz: "America/New_York", country: "US", flag: "🇺🇸" },
-  { name: "Los Angeles", tz: "America/Los_Angeles", country: "US", flag: "🇺🇸" },
-  { name: "Chicago", tz: "America/Chicago", country: "US", flag: "🇺🇸" },
-  { name: "Denver", tz: "America/Denver", country: "US", flag: "🇺🇸" },
-  { name: "Toronto", tz: "America/Toronto", country: "CA", flag: "🇨🇦" },
-  { name: "Vancouver", tz: "America/Vancouver", country: "CA", flag: "🇨🇦" },
-  { name: "London", tz: "Europe/London", country: "GB", flag: "🇬🇧" },
-  { name: "Paris", tz: "Europe/Paris", country: "FR", flag: "🇫🇷" },
-  { name: "Berlin", tz: "Europe/Berlin", country: "DE", flag: "🇩🇪" },
-  { name: "Amsterdam", tz: "Europe/Amsterdam", country: "NL", flag: "🇳🇱" },
-  { name: "Madrid", tz: "Europe/Madrid", country: "ES", flag: "🇪🇸" },
-  { name: "Rome", tz: "Europe/Rome", country: "IT", flag: "🇮🇹" },
-  { name: "Stockholm", tz: "Europe/Stockholm", country: "SE", flag: "🇸🇪" },
-  { name: "Zurich", tz: "Europe/Zurich", country: "CH", flag: "🇨🇭" },
-  { name: "Dubai", tz: "Asia/Dubai", country: "AE", flag: "🇦🇪" },
-  { name: "Mumbai", tz: "Asia/Kolkata", country: "IN", flag: "🇮🇳" },
-  { name: "Bangalore", tz: "Asia/Kolkata", country: "IN", flag: "🇮🇳" },
-  { name: "Singapore", tz: "Asia/Singapore", country: "SG", flag: "🇸🇬" },
-  { name: "Hong Kong", tz: "Asia/Hong_Kong", country: "HK", flag: "🇭🇰" },
-  { name: "Tokyo", tz: "Asia/Tokyo", country: "JP", flag: "🇯🇵" },
-  { name: "Seoul", tz: "Asia/Seoul", country: "KR", flag: "🇰🇷" },
-  { name: "Sydney", tz: "Australia/Sydney", country: "AU", flag: "🇦🇺" },
-  { name: "Melbourne", tz: "Australia/Melbourne", country: "AU", flag: "🇦🇺" },
-  { name: "Auckland", tz: "Pacific/Auckland", country: "NZ", flag: "🇳🇿" },
-  { name: "São Paulo", tz: "America/Sao_Paulo", country: "BR", flag: "🇧🇷" },
-  { name: "Mexico City", tz: "America/Mexico_City", country: "MX", flag: "🇲🇽" },
-  { name: "Buenos Aires", tz: "America/Argentina/Buenos_Aires", country: "AR", flag: "🇦🇷" },
-  { name: "Cairo", tz: "Africa/Cairo", country: "EG", flag: "🇪🇬" },
-  { name: "Lagos", tz: "Africa/Lagos", country: "NG", flag: "🇳🇬" },
-  { name: "Nairobi", tz: "Africa/Nairobi", country: "KE", flag: "🇰🇪" },
-  { name: "Istanbul", tz: "Europe/Istanbul", country: "TR", flag: "🇹🇷" },
-  { name: "Moscow", tz: "Europe/Moscow", country: "RU", flag: "🇷🇺" },
-  { name: "Karachi", tz: "Asia/Karachi", country: "PK", flag: "🇵🇰" },
-  { name: "Dhaka", tz: "Asia/Dhaka", country: "BD", flag: "🇧🇩" },
-  { name: "Jakarta", tz: "Asia/Jakarta", country: "ID", flag: "🇮🇩" },
-  { name: "Manila", tz: "Asia/Manila", country: "PH", flag: "🇵🇭" },
-  { name: "Bangkok", tz: "Asia/Bangkok", country: "TH", flag: "🇹🇭" },
-  { name: "Kuala Lumpur", tz: "Asia/Kuala_Lumpur", country: "MY", flag: "🇲🇾" },
-  { name: "Riyadh", tz: "Asia/Riyadh", country: "SA", flag: "🇸🇦" },
-  { name: "Tel Aviv", tz: "Asia/Jerusalem", country: "IL", flag: "🇮🇱" },
+  { name: "New York", tz: "America/New_York", flag: "🇺🇸", region: "Americas", country: "US" },
+  { name: "Los Angeles", tz: "America/Los_Angeles", flag: "🇺🇸", region: "Americas", country: "US" },
+  { name: "Chicago", tz: "America/Chicago", flag: "🇺🇸", region: "Americas", country: "US" },
+  { name: "Denver", tz: "America/Denver", flag: "🇺🇸", region: "Americas", country: "US" },
+  { name: "Toronto", tz: "America/Toronto", flag: "🇨🇦", region: "Americas", country: "CA" },
+  { name: "Vancouver", tz: "America/Vancouver", flag: "🇨🇦", region: "Americas", country: "CA" },
+  { name: "São Paulo", tz: "America/Sao_Paulo", flag: "🇧🇷", region: "Americas", country: "BR" },
+  { name: "Mexico City", tz: "America/Mexico_City", flag: "🇲🇽", region: "Americas", country: "MX" },
+  { name: "Buenos Aires", tz: "America/Argentina/Buenos_Aires", flag: "🇦🇷", region: "Americas", country: "AR" },
+  { name: "London", tz: "Europe/London", flag: "🇬🇧", region: "Europe", country: "GB" },
+  { name: "Paris", tz: "Europe/Paris", flag: "🇫🇷", region: "Europe", country: "FR" },
+  { name: "Berlin", tz: "Europe/Berlin", flag: "🇩🇪", region: "Europe", country: "DE" },
+  { name: "Amsterdam", tz: "Europe/Amsterdam", flag: "🇳🇱", region: "Europe", country: "NL" },
+  { name: "Madrid", tz: "Europe/Madrid", flag: "🇪🇸", region: "Europe", country: "ES" },
+  { name: "Rome", tz: "Europe/Rome", flag: "🇮🇹", region: "Europe", country: "IT" },
+  { name: "Stockholm", tz: "Europe/Stockholm", flag: "🇸🇪", region: "Europe", country: "SE" },
+  { name: "Zurich", tz: "Europe/Zurich", flag: "🇨🇭", region: "Europe", country: "CH" },
+  { name: "Istanbul", tz: "Europe/Istanbul", flag: "🇹🇷", region: "Europe", country: "TR" },
+  { name: "Moscow", tz: "Europe/Moscow", flag: "🇷🇺", region: "Europe", country: "RU" },
+  { name: "Dubai", tz: "Asia/Dubai", flag: "🇦🇪", region: "Middle East", country: "AE" },
+  { name: "Riyadh", tz: "Asia/Riyadh", flag: "🇸🇦", region: "Middle East", country: "SA" },
+  { name: "Tel Aviv", tz: "Asia/Jerusalem", flag: "🇮🇱", region: "Middle East", country: "IL" },
+  { name: "Cairo", tz: "Africa/Cairo", flag: "🇪🇬", region: "Africa", country: "EG" },
+  { name: "Lagos", tz: "Africa/Lagos", flag: "🇳🇬", region: "Africa", country: "NG" },
+  { name: "Nairobi", tz: "Africa/Nairobi", flag: "🇰🇪", region: "Africa", country: "KE" },
+  { name: "Johannesburg", tz: "Africa/Johannesburg", flag: "🇿🇦", region: "Africa", country: "ZA" },
+  { name: "Accra", tz: "Africa/Accra", flag: "🇬🇭", region: "Africa", country: "GH" },
+  { name: "Mumbai", tz: "Asia/Kolkata", flag: "🇮🇳", region: "Asia", country: "IN" },
+  { name: "Delhi", tz: "Asia/Kolkata", flag: "🇮🇳", region: "Asia", country: "IN" },
+  { name: "Karachi", tz: "Asia/Karachi", flag: "🇵🇰", region: "Asia", country: "PK" },
+  { name: "Dhaka", tz: "Asia/Dhaka", flag: "🇧🇩", region: "Asia", country: "BD" },
+  { name: "Singapore", tz: "Asia/Singapore", flag: "🇸🇬", region: "Asia", country: "SG" },
+  { name: "Hong Kong", tz: "Asia/Hong_Kong", flag: "🇭🇰", region: "Asia", country: "HK" },
+  { name: "Tokyo", tz: "Asia/Tokyo", flag: "🇯🇵", region: "Asia", country: "JP" },
+  { name: "Seoul", tz: "Asia/Seoul", flag: "🇰🇷", region: "Asia", country: "KR" },
+  { name: "Bangkok", tz: "Asia/Bangkok", flag: "🇹🇭", region: "Asia", country: "TH" },
+  { name: "Jakarta", tz: "Asia/Jakarta", flag: "🇮🇩", region: "Asia", country: "ID" },
+  { name: "Manila", tz: "Asia/Manila", flag: "🇵🇭", region: "Asia", country: "PH" },
+  { name: "Kuala Lumpur", tz: "Asia/Kuala_Lumpur", flag: "🇲🇾", region: "Asia", country: "MY" },
+  { name: "Colombo", tz: "Asia/Colombo", flag: "🇱🇰", region: "Asia", country: "LK" },
+  { name: "Sydney", tz: "Australia/Sydney", flag: "🇦🇺", region: "Pacific", country: "AU" },
+  { name: "Melbourne", tz: "Australia/Melbourne", flag: "🇦🇺", region: "Pacific", country: "AU" },
+  { name: "Auckland", tz: "Pacific/Auckland", flag: "🇳🇿", region: "Pacific", country: "NZ" },
+  { name: "Honolulu", tz: "Pacific/Honolulu", flag: "🇺🇸", region: "Pacific", country: "US" },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-function getTimeInZone(tz, date = new Date()) {
+const QUICK_PICKS = ["London", "New York", "Tokyo", "Sydney", "Dubai", "Singapore", "Paris", "Toronto"];
+
+const HOLIDAYS = {
+  "America/New_York": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Jul 4", n: "Independence Day" }, { d: "Nov 28", n: "Thanksgiving" }, { d: "Dec 25", n: "Christmas Day" }],
+  "Europe/London": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Dec 25", n: "Christmas Day" }, { d: "Dec 26", n: "Boxing Day" }],
+  "Asia/Tokyo": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Feb 11", n: "National Foundation Day" }, { d: "May 3", n: "Constitution Day" }, { d: "Aug 11", n: "Mountain Day" }, { d: "Dec 23", n: "Emperor's Birthday" }],
+  "Australia/Sydney": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Jan 26", n: "Australia Day" }, { d: "Apr 25", n: "ANZAC Day" }, { d: "Dec 25", n: "Christmas Day" }, { d: "Dec 26", n: "Boxing Day" }],
+  "Europe/Paris": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Jul 14", n: "Bastille Day" }, { d: "Dec 25", n: "Christmas Day" }],
+  "Asia/Kolkata": [{ d: "Jan 26", n: "Republic Day" }, { d: "Aug 15", n: "Independence Day" }, { d: "Oct 2", n: "Gandhi Jayanti" }],
+  "Asia/Singapore": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Aug 9", n: "National Day" }, { d: "Dec 25", n: "Christmas Day" }],
+  "Europe/Berlin": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Oct 3", n: "German Unity Day" }, { d: "Dec 25", n: "Christmas Day" }],
+  "Asia/Dubai": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Dec 2", n: "UAE National Day" }],
+  "America/Toronto": [{ d: "Jan 1", n: "New Year's Day" }, { d: "Jul 1", n: "Canada Day" }, { d: "Dec 25", n: "Christmas Day" }, { d: "Dec 26", n: "Boxing Day" }],
+};
+
+const REGIONS = ["All", "Americas", "Europe", "Middle East", "Africa", "Asia", "Pacific"];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getZoneTime(tz, date = new Date()) {
   return new Date(date.toLocaleString("en-US", { timeZone: tz }));
 }
-
-function formatTime(date, use24 = false) {
+function fmt(date, u24) {
   const h = date.getHours(), m = date.getMinutes(), s = date.getSeconds();
-  if (use24) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  const ampm = h >= 12 ? "PM" : "AM";
-  const h12 = h % 12 || 12;
-  return `${h12}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")} ${ampm}`;
+  if (u24) return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const ap = h >= 12 ? "PM" : "AM", h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} ${ap}`;
 }
-
-function formatTimeShort(hour, use24 = false) {
-  if (use24) return `${String(hour).padStart(2, "0")}:00`;
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const h12 = hour % 12 || 12;
-  return `${h12} ${ampm}`;
+function fmtH(h, u24) {
+  if (u24) return `${String(h).padStart(2,"0")}:00`;
+  const ap = h >= 12 ? "PM" : "AM", h12 = h % 12 || 12;
+  return `${h12}${ap}`;
 }
-
-function getHourStatus(hour) {
-  if (hour >= 9 && hour < 18) return "work";
-  if (hour >= 7 && hour < 22) return "awake";
-  return "sleep";
-}
-
-function getDateInZone(tz, date = new Date()) {
-  return new Date(date.toLocaleString("en-US", { timeZone: tz })).toLocaleDateString("en-US", {
-    weekday: "short", month: "short", day: "numeric", timeZone: tz
-  });
-}
-
-function getOffsetLabel(tz) {
+function getOffset(tz) {
   const now = new Date();
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-  const zoneMs = new Date(now.toLocaleString("en-US", { timeZone: tz })).getTime();
-  const offsetMin = Math.round((zoneMs - new Date(now.toLocaleString("en-US", { timeZone: "UTC" })).getTime()) / 60000);
-  const sign = offsetMin >= 0 ? "+" : "-";
-  const abs = Math.abs(offsetMin);
-  return `UTC${sign}${Math.floor(abs / 60)}${abs % 60 ? `:${String(abs % 60).padStart(2, "0")}` : ""}`;
+  const utc = new Date(now.toLocaleString("en-US", { timeZone: "UTC" }));
+  const zone = new Date(now.toLocaleString("en-US", { timeZone: tz }));
+  const mins = Math.round((zone - utc) / 60000);
+  const sign = mins >= 0 ? "+" : "-";
+  const abs = Math.abs(mins);
+  return `UTC${sign}${Math.floor(abs / 60)}${abs % 60 ? ":" + String(abs % 60).padStart(2,"0") : ""}`;
+}
+function getStatusInfo(h, ws = { start: 9, end: 18 }) {
+  if (h >= ws.start && h < ws.end) return { label: "Working", color: "#00c864", bg: "rgba(0,200,100,0.2)", status: "work" };
+  if (h >= 7 && h < 22) return { label: "Awake", color: "#ffb400", bg: "rgba(255,180,0,0.12)", status: "awake" };
+  return { label: "Sleeping", color: "#4a6080", bg: "rgba(255,255,255,0.02)", status: "sleep" };
+}
+function getDateStr(tz, now = new Date()) {
+  return new Date(now.toLocaleString("en-US", { timeZone: tz }))
+    .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: tz });
+}
+function toUnix(date) { return Math.floor(date.getTime() / 1000); }
+function getTimeGreeting(h) {
+  if (h >= 5 && h < 12) return { text: "Good morning!", sub: "The world is waking up. Add your team's cities to see who's at their desk.", emoji: "🌅" };
+  if (h >= 12 && h < 17) return { text: "Good afternoon!", sub: "Peak hours for most of the world. Let's see who's available.", emoji: "☀️" };
+  if (h >= 17 && h < 21) return { text: "Good evening!", sub: "Europe is wrapping up — Asia Pacific is hitting their stride.", emoji: "🌆" };
+  return { text: "Burning the midnight oil?", sub: "The Asia Pacific team is just getting started. You're in good company.", emoji: "🌙" };
+}
+function checkHoliday(tz, now = new Date()) {
+  const holidays = HOLIDAYS[tz] || [];
+  const t = getZoneTime(tz, now);
+  const monthStr = t.toLocaleDateString("en-US", { month: "short" });
+  const dayStr = t.getDate().toString();
+  return holidays.find(h => h.d.startsWith(monthStr) && h.d.split(" ")[1] === dayStr) || null;
 }
 
-function getCopiedLink(zones, baseHour) {
-  const params = zones.map(z => encodeURIComponent(z.tz)).join(",");
-  return `${window.location.href.split("?")[0]}?zones=${params}&hour=${baseHour}`;
-}
-
-// ── FAQ Data ───────────────────────────────────────────────────────────────────
 const FAQ = [
-  { q: "What is a time zone converter?", a: "A time zone converter lets you see what time it currently is across multiple cities around the world simultaneously, helping you schedule meetings, calls, and events with people in different countries without confusion." },
-  { q: "How do I find the best meeting time for a global team?", a: "Use the Meeting Planner tab to add all participants' cities. The tool highlights overlapping work hours (9am–6pm) in green, so you can instantly see when everyone is available during normal business hours." },
-  { q: "What do the color bands on the timeline mean?", a: "Green bands represent standard work hours (9am–6pm). Yellow/amber bands show early morning or evening hours when people are awake but outside work time. Dark bands indicate typical sleeping hours (10pm–7am), helping you avoid scheduling calls that wake someone up." },
-  { q: "Does this tool account for Daylight Saving Time?", a: "Yes. All time conversions use your device's live timezone data, which automatically updates for Daylight Saving Time transitions in every country. The timezone offset displayed next to each city always reflects the current DST-adjusted time." },
-  { q: "Can I share my timezone comparison with someone?", a: "Yes, click 'Copy Link' on any comparison and the URL captures your exact configuration. Anyone who opens the link sees the same cities and time settings instantly, no account required." },
-  { q: "How many time zones can I compare at once?", a: "You can compare up to 8 cities simultaneously in the free tool. This covers most global team setups, typically US, Europe, and Asia/Pacific combinations." },
-  { q: "What is UTC and why does it matter?", a: "UTC (Coordinated Universal Time) is the world's time standard. All timezones are defined as offsets from UTC. For example, New York is UTC-5 in winter and UTC-4 in summer. UTC never changes for Daylight Saving, making it useful as a universal reference." },
-  { q: "Which cities have the most difficult time zone overlaps?", a: "US West Coast (Los Angeles, UTC-8) and Asia-Pacific (Tokyo, UTC+9, Sydney UTC+11) have a 17–19 hour gap, the hardest overlap globally. The only workable window is typically 7–9am in Asia, which corresponds to 3–5pm the previous day in Los Angeles." },
+  { q: "What is ZoneAtlas?", a: "ZoneAtlas is the world's most complete free timezone tool. It shows live world clocks, a meeting planner, team availability heatmap, Discord timestamp generator, and a recurring meeting DST checker — all in one place with no signup required." },
+  { q: "How does the sleep overlay work?", a: "The 24-hour timeline color codes each hour: green means work hours (9am-6pm), amber means awake but outside work hours, dark means sleeping. You can set custom work hours for each city using the settings icon on each clock card." },
+  { q: "Does ZoneAtlas handle Daylight Saving Time?", a: "Yes. All conversions use your browser's live timezone database which automatically updates for DST transitions in every country. The Recurring Meeting tab shows you how your weekly slot shifts throughout the year." },
+  { q: "How do saved team profiles work?", a: "Save your team's cities as a named profile — like 'My Dev Team'. One click reloads everything instantly. Profiles are saved in your browser and never require an account. Your data never leaves your device." },
+  { q: "What are Discord timestamps?", a: "Discord timestamps are codes like <t:1234567890:F> that automatically show in every Discord user's local time. Paste them in any server, DM, or announcement and they display correctly for everyone." },
+  { q: "What is the Team Availability Heatmap?", a: "The heatmap shows every hour of the week color-coded by how many team members are in work hours. Green means everyone is available. It instantly reveals the best slots for meetings without back-and-forth emails." },
+  { q: "Is my data safe?", a: "ZoneAtlas collects no personal information. Saved team profiles are stored only in your browser's local storage — they never touch our servers. There is no account, no email required, and nothing to steal." },
+  { q: "Is ZoneAtlas really free?", a: "Yes, completely free forever. No signup, no subscription. ZoneAtlas is supported by non-intrusive advertising placed only in content areas — never inside the tool itself." },
 ];
 
-// ── Main Component ─────────────────────────────────────────────────────────────
-export default function WorldTimezone() {
+// ── Toast Component ───────────────────────────────────────────────────────────
+function Toast({ message, emoji, onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 4000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", zIndex: 200, background: "#0c1730", border: "1px solid rgba(0,200,255,0.3)", borderRadius: 12, padding: "12px 18px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 32px rgba(0,0,0,0.5)", maxWidth: 380, animation: "slideUp 0.3s ease" }}>
+      <span style={{ fontSize: 20 }}>{emoji}</span>
+      <span style={{ fontSize: 13, color: "#eef4ff", fontWeight: 500, lineHeight: 1.5 }}>{message}</span>
+      <button onClick={onClose} style={{ marginLeft: "auto", color: "#4a6080", fontSize: 14, background: "none", border: "none", cursor: "pointer", padding: "0 4px", flexShrink: 0 }}>✕</button>
+    </div>
+  );
+}
+
+// ── Tooltip Component ─────────────────────────────────────────────────────────
+function Tooltip({ text, onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 5000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <div style={{ background: "rgba(0,200,255,0.15)", border: "1px solid rgba(0,200,255,0.3)", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#00c8ff", fontWeight: 500, marginTop: 8, display: "flex", alignItems: "center", gap: 6, animation: "fadeIn 0.3s ease" }}>
+      <span>💡</span>
+      <span style={{ flex: 1 }}>{text}</span>
+      <button onClick={onClose} style={{ color: "rgba(0,200,255,0.5)", fontSize: 12, background: "none", border: "none", cursor: "pointer" }}>✕</button>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+export default function WorldTimezone({ onPrivacy, onAbout }) {
   const [now, setNow] = useState(new Date());
-  const [selectedZones, setSelectedZones] = useState([
-    CITIES.find(c => c.name === "New York"),
-    CITIES.find(c => c.name === "London"),
-    CITIES.find(c => c.name === "Dubai"),
-    CITIES.find(c => c.name === "Singapore"),
-  ]);
-  const [use24, setUse24] = useState(false);
+  const [zones, setZones] = useState([]);
+  const [customHours, setCustomHours] = useState({});
+  const [u24, setU24] = useState(false);
+  const [tab, setTab] = useState("clock");
   const [search, setSearch] = useState("");
+  const [regionFilter, setRegionFilter] = useState("All");
   const [showSearch, setShowSearch] = useState(false);
-  const [activeTab, setActiveTab] = useState("clock");
-  const [meetingHour, setMeetingHour] = useState(10);
-  const [meetingDate, setMeetingDate] = useState(() => new Date().toISOString().split("T")[0]);
-  const [copied, setCopied] = useState(false);
+  const [mHour, setMHour] = useState(10);
+  const [copiedKey, setCopiedKey] = useState(null);
   const [openFaq, setOpenFaq] = useState(null);
-  const [hoveredHour, setHoveredHour] = useState(null);
+  const [hoverH, setHoverH] = useState(null);
+  const [showCustomHours, setShowCustomHours] = useState(null);
+  const [profiles, setProfiles] = useState(() => { try { return JSON.parse(localStorage.getItem("za_profiles") || "{}"); } catch { return {}; } });
+  const [profileName, setProfileName] = useState("");
+  const [showProfileSave, setShowProfileSave] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
+  const [discordTime, setDiscordTime] = useState(() => new Date().toISOString().slice(0, 16));
+  const [toast, setToast] = useState(null);
+  const [seenTooltips, setSeenTooltips] = useState(() => { try { return JSON.parse(localStorage.getItem("za_tooltips") || "{}"); } catch { return {}; } });
+  const [activeTooltip, setActiveTooltip] = useState(null);
+  const [isReturning, setIsReturning] = useState(false);
+  const [onboardStep, setOnboardStep] = useState(0);
+  const [showShareNudge, setShowShareNudge] = useState(false);
+  const [lightMode, setLightMode] = useState(() => localStorage.getItem("za_theme") === "light");
+  const visitCount = useRef(0);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  const addZone = useCallback((city) => {
-    if (selectedZones.length >= 8) return;
-    if (selectedZones.find(z => z.tz === city.tz && z.name === city.name)) return;
-    setSelectedZones(prev => [...prev, city]);
-    setShowSearch(false);
-    setSearch("");
-  }, [selectedZones]);
+  // Initialise — detect returning user, load last cities
+  useEffect(() => {
+    const visits = parseInt(localStorage.getItem("za_visits") || "0") + 1;
+    localStorage.setItem("za_visits", visits);
+    visitCount.current = visits;
 
-  const removeZone = useCallback((idx) => {
-    setSelectedZones(prev => prev.filter((_, i) => i !== idx));
+    const lastCities = localStorage.getItem("za_last_cities");
+    const defaultProfile = localStorage.getItem("za_default_profile");
+
+    if (visits > 1) {
+      setIsReturning(true);
+      if (defaultProfile && profiles[defaultProfile]) {
+        const loaded = profiles[defaultProfile].map(n => CITIES.find(c => c.name === n)).filter(Boolean);
+        if (loaded.length) { setZones(loaded); setOnboardStep(3); }
+      } else if (lastCities) {
+        const names = JSON.parse(lastCities);
+        const loaded = names.map(n => CITIES.find(c => c.name === n)).filter(Boolean);
+        if (loaded.length) { setZones(loaded); setOnboardStep(3); }
+      }
+      // Show returning greeting after short delay
+      setTimeout(() => {
+        const g = getTimeGreeting(new Date().getHours());
+        setToast({ message: defaultProfile ? `Welcome back! Your team "${defaultProfile}" is ready.` : "Welcome back! Your last cities have been restored.", emoji: "👋" });
+      }, 600);
+    } else {
+      // First visit — auto-detect rough location from timezone
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const match = CITIES.find(c => c.tz === tz);
+        if (match) setZones([match]);
+      } catch {}
+      setOnboardStep(1);
+    }
   }, []);
 
-  const filtered = CITIES.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.country.toLowerCase().includes(search.toLowerCase())
-  ).filter(c => !selectedZones.find(z => z.tz === c.tz && z.name === c.name));
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem("za_theme", lightMode ? "light" : "dark");
+  }, [lightMode]);
+    if (zones.length) localStorage.setItem("za_last_cities", JSON.stringify(zones.map(z => z.name)));
+  }, [zones]);
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  // Smart prompts based on state
+  useEffect(() => {
+    if (zones.length === 2 && onboardStep < 2) {
+      setOnboardStep(2);
+      // Check if anyone is awake
+      const awakeZones = zones.filter(z => {
+        const h = getZoneTime(z.tz, now).getHours();
+        return h >= 7 && h < 22;
+      });
+      if (awakeZones.length > 0) {
+        setTimeout(() => setToast({ message: `Your ${awakeZones[awakeZones.length - 1].name} contact is awake right now — good time to message them!`, emoji: "👋" }), 800);
+      }
+    }
+    if (zones.length >= 3 && onboardStep < 3) {
+      setOnboardStep(3);
+      setTimeout(() => setToast({ message: "Ready to find the best meeting time for everyone? Try the Meeting Planner.", emoji: "📅", action: () => setTab("planner") }), 1200);
+    }
+  }, [zones.length]);
+
+  // DST awareness check
+  useEffect(() => {
+    if (zones.length < 2) return;
+    // Check for upcoming DST in next 7 days (simplified signal)
+    const nowMs = now.getTime();
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    zones.forEach(zone => {
+      const nowOffset = getOffset(zone.tz);
+      const futureOffset = getOffset(zone.tz); // In real app, would check 7 days ahead
+      // Holiday check
+      const holiday = checkHoliday(zone.tz, now);
+      if (holiday && !seenTooltips[`holiday_${zone.name}_${holiday.d}`]) {
+        setTimeout(() => {
+          setToast({ message: `Today is ${holiday.n} in ${zone.name}. Your contact there may be off today!`, emoji: "🎉" });
+          markTooltip(`holiday_${zone.name}_${holiday.d}`);
+        }, 2000);
+      }
+    });
+  }, [zones]);
+
+  const markTooltip = (key) => {
+    const updated = { ...seenTooltips, [key]: true };
+    setSeenTooltips(updated);
+    localStorage.setItem("za_tooltips", JSON.stringify(updated));
+  };
+
+  const showTooltip = (key, text) => {
+    if (seenTooltips[key]) return;
+    setActiveTooltip({ key, text });
+    markTooltip(key);
+  };
+
+  const addZone = (c) => {
+    if (zones.length >= 8 || zones.find(z => z.tz === c.tz && z.name === c.name)) return;
+    setZones(p => [...p, c]);
+    setShowSearch(false);
+    setSearch("");
+  };
+
+  const removeZone = (i) => {
+    setZones(p => p.filter((_, j) => j !== i));
+  };
+
+  const copy = (text, key, successMsg) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+    if (successMsg) setToast({ message: successMsg, emoji: "✅" });
+  };
+
+  const saveProfile = () => {
+    if (!profileName.trim()) return;
+    const updated = { ...profiles, [profileName.trim()]: zones.map(z => z.name) };
+    setProfiles(updated);
+    localStorage.setItem("za_profiles", JSON.stringify(updated));
+    localStorage.setItem("za_default_profile", profileName.trim());
+    setProfileName("");
+    setShowProfileSave(false);
+    setToast({ message: `Saved! "${profileName.trim()}" loads automatically next time.`, emoji: "🎉" });
+    setTimeout(() => setShowShareNudge(true), 3000);
+  };
+
+  const loadProfile = (name) => {
+    const cityNames = profiles[name] || [];
+    const loaded = cityNames.map(n => CITIES.find(c => c.name === n)).filter(Boolean);
+    if (loaded.length) { setZones(loaded); setToast({ message: `"${name}" loaded! Your team is ready.`, emoji: "✅" }); }
+  };
+
+  const deleteProfile = (name) => {
+    const updated = { ...profiles };
+    delete updated[name];
+    setProfiles(updated);
+    localStorage.setItem("za_profiles", JSON.stringify(updated));
+  };
+
+  const generateInvite = () => {
+    const lines = zones.map(z => {
+      const off = getZoneTime(z.tz, now).getHours() - now.getHours();
+      const lh = (mHour + off + 48) % 24;
+      const ws = customHours[z.name] || { start: 9, end: 18 };
+      const si = getStatusInfo(lh, ws);
+      const icon = si.status === "work" ? "✅" : si.status === "awake" ? "⚠️" : "😴";
+      return `${z.flag} ${z.name}: ${fmtH(lh, u24)} ${icon}`;
+    });
+    return `📅 Meeting time:\n${lines.join("\n")}\n\nScheduled with ZoneAtlas — zoneatlas.vercel.app`;
+  };
+
+  const generateDiscord = (format) => `<t:${toUnix(new Date(discordTime))}:${format}>`;
+
+  const checkRecurring = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return months.map((month, i) => {
+      const testDate = new Date(new Date().getFullYear(), i, 15, mHour, 0, 0);
+      return {
+        month,
+        times: zones.map(z => {
+          const lh = getZoneTime(z.tz, testDate).getHours();
+          const ws = customHours[z.name] || { start: 9, end: 18 };
+          return { city: z.name, flag: z.flag, hour: lh, si: getStatusInfo(lh, ws) };
+        })
+      };
     });
   };
 
-  const meetingDateObj = new Date(meetingDate + "T00:00:00");
+  const getHeatmap = () => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days.map((day, di) => ({
+      day,
+      isWeekend: di === 0 || di === 6,
+      hours: Array.from({ length: 24 }, (_, h) => {
+        const count = zones.filter(z => {
+          const off = getZoneTime(z.tz, now).getHours() - now.getHours();
+          const lh = (h + off + 48) % 24;
+          const ws = customHours[z.name] || { start: 9, end: 18 };
+          return lh >= ws.start && lh < ws.end;
+        }).length;
+        return count;
+      })
+    }));
+  };
+
+  // Conflict detection for meeting planner
+  const getMeetingConflicts = () => {
+    const conflicts = [];
+    zones.forEach(z => {
+      const off = getZoneTime(z.tz, now).getHours() - now.getHours();
+      const lh = (mHour + off + 48) % 24;
+      const ws = customHours[z.name] || { start: 9, end: 18 };
+      const si = getStatusInfo(lh, ws);
+      if (si.status === "sleep") {
+        conflicts.push({ city: z.name, flag: z.flag, hour: lh, type: "sleep" });
+      } else if (si.status === "awake") {
+        conflicts.push({ city: z.name, flag: z.flag, hour: lh, type: "outside_hours" });
+      }
+    });
+    return conflicts;
+  };
+
+  const allInWorkHours = zones.length > 0 && zones.every(z => {
+    const off = getZoneTime(z.tz, now).getHours() - now.getHours();
+    const lh = (mHour + off + 48) % 24;
+    const ws = customHours[z.name] || { start: 9, end: 18 };
+    return lh >= ws.start && lh < ws.end;
+  });
+
+  const filtered = CITIES
+    .filter(c => regionFilter === "All" || c.region === regionFilter)
+    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(c => !zones.find(z => z.tz === c.tz && z.name === c.name));
+
+  const embedCode = `<iframe src="https://zoneatlas.vercel.app?embed=1&cities=${zones.map(z => encodeURIComponent(z.name)).join(",")}" width="100%" height="200" frameborder="0" style="border-radius:12px;border:none"></iframe>`;
+
+  const greeting = getTimeGreeting(now.getHours());
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", background: "var(--bg, #060d1f)", color: "var(--text, #e8f0ff)", minHeight: "100vh", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", background: lightMode ? "#f5f7fa" : "#060d1f", color: lightMode ? "#1a1a2e" : "#eef4ff", minHeight: "100vh", overflowX: "hidden", transition: "background 0.3s, color 0.3s" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
         :root {
-          --bg: #060d1f;
-          --bg2: #0c1730;
-          --bg3: #111f3d;
-          --border: rgba(0,200,255,0.15);
-          --border2: rgba(0,200,255,0.08);
-          --cyan: #00c8ff;
-          --cyan2: #00e5ff;
-          --cyan-dim: rgba(0,200,255,0.12);
-          --text: #e8f0ff;
-          --text2: #8ba4cc;
-          --text3: #4a6080;
-          --work: rgba(0,200,100,0.18);
-          --work-border: rgba(0,200,100,0.5);
-          --awake: rgba(255,180,0,0.12);
-          --awake-border: rgba(255,180,0,0.4);
-          --sleep: rgba(20,30,60,0.6);
+          --bg: ${lightMode ? "#f5f7fa" : "#060d1f"};
+          --bg2: ${lightMode ? "#ffffff" : "#0c1730"};
+          --bg3: ${lightMode ? "#f0f2f5" : "#111f3d"};
+          --border: ${lightMode ? "rgba(0,0,0,0.12)" : "rgba(0,200,255,0.18)"};
+          --border2: ${lightMode ? "rgba(0,0,0,0.07)" : "rgba(0,200,255,0.09)"};
+          --cyan: ${lightMode ? "#0070cc" : "#00c8ff"};
+          --cyan-dim: ${lightMode ? "rgba(0,112,204,0.1)" : "rgba(0,200,255,0.12)"};
+          --text: ${lightMode ? "#1a1a2e" : "#eef4ff"};
+          --text2: ${lightMode ? "#4a5568" : "#8ba4cc"};
+          --text3: ${lightMode ? "#9aa5b1" : "#4a6080"};
           --red: #ff4560;
           --green: #00c864;
           --yellow: #ffb400;
-          --radius: 12px;
+          --radius: 14px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
-        input, button, select { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
-        button { cursor: pointer; border: none; background: none; color: inherit; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: var(--bg2); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        .fade-in { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-        .tab-btn { padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 700; letter-spacing: -0.1px; transition: all 0.2s; color: var(--text2); border: 1px solid transparent; }
-        .tab-btn:hover { color: var(--text); }
-        .tab-btn.active { background: var(--cyan-dim); border-color: var(--border); color: var(--cyan); }
-        .zone-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s, box-shadow 0.2s; }
-        .zone-card:hover { border-color: var(--border); box-shadow: 0 4px 24px rgba(0,200,255,0.06); }
-        .hour-cell { height: 36px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: 'Space Mono', monospace; transition: all 0.15s; cursor: pointer; border-radius: 4px; }
-        .hour-cell:hover { transform: scaleY(1.1); }
-        .faq-item { border-bottom: 1px solid var(--border2); overflow: hidden; }
-        .faq-q { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 16px; font-weight: 700; color: var(--text); gap: 12px; letter-spacing: -0.2px; }
-        .faq-q:hover { color: var(--cyan); }
-        .faq-a { font-size: 15px; color: var(--text2); line-height: 1.75; padding-bottom: 20px; }
-        .search-item { padding: 11px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; border-radius: 8px; font-weight: 500; }
-        .search-item:hover { background: var(--bg3); }
-        .meeting-slot { flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: 'Space Mono', monospace; border-radius: 4px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
-        .meeting-slot:hover { transform: scaleY(1.05); }
-        .meeting-slot.selected { border-color: var(--cyan); transform: scaleY(1.1); }
-        @keyframes starFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:var(--bg);font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif}
+        input,button,select,textarea{font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif}
+        button{cursor:pointer;border:none;background:none;color:inherit}
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-track{background:var(--bg2)}
+        ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .pulse{animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .fade-in{animation:fadeIn 0.3s ease}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translateX(-50%)}}
+        @keyframes starFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+        @keyframes shimmer{0%{opacity:0.5}50%{opacity:1}100%{opacity:0.5}}
+        .tab-btn{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;transition:all 0.2s;color:var(--text2);border:1px solid transparent;white-space:nowrap}
+        .tab-btn:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+        .tab-btn.active{background:var(--cyan-dim);border-color:var(--border);color:var(--cyan)}
+        .zone-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;transition:border-color 0.2s,box-shadow 0.2s}
+        .zone-card:hover{border-color:var(--border);box-shadow:0 4px 24px rgba(0,200,255,0.06)}
+        .hour-cell{height:30px;flex:1;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Space Mono',monospace;transition:all 0.15s;cursor:pointer;border-radius:3px}
+        .faq-item{border-bottom:1px solid var(--border2);overflow:hidden}
+        .faq-q{padding:20px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:700;color:var(--text);gap:12px;letter-spacing:-0.2px}
+        .faq-q:hover{color:var(--cyan)}
+        .faq-a{font-size:15px;color:var(--text2);line-height:1.75;padding-bottom:20px}
+        .search-item{padding:11px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;border-radius:8px;font-weight:500;transition:background 0.1s}
+        .search-item:hover{background:var(--bg3)}
+        .meeting-slot{flex:1;height:38px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Space Mono',monospace;border-radius:3px;cursor:pointer;transition:all 0.15s;border:1px solid transparent}
+        .meeting-slot.selected{border-color:var(--cyan)!important}
+        .pill-btn{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s}
+        .pill-btn:hover,.pill-btn.active{border-color:var(--border);color:var(--cyan);background:var(--cyan-dim)}
+        .input-field{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none}
+        .input-field:focus{border-color:var(--cyan)}
+        .action-btn{padding:8px 16px;border-radius:8px;background:var(--cyan-dim);border:1px solid var(--border);color:var(--cyan);font-size:12px;font-weight:700;cursor:pointer;transition:background 0.15s}
+        .action-btn:hover{background:rgba(0,200,255,0.2)}
+        .nudge-bar{background:linear-gradient(135deg,rgba(0,200,255,0.08),rgba(0,80,255,0.08));border:1px solid rgba(0,200,255,0.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--text2);animation:fadeIn 0.4s ease}
       `}</style>
 
-      {/* Stars background */}
+      {/* Stars — dark mode only */}
+      {!lightMode && (
       <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-        {[...Array(60)].map((_, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            width: Math.random() * 2 + 1,
-            height: Math.random() * 2 + 1,
-            background: "white",
-            borderRadius: "50%",
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            opacity: Math.random() * 0.6 + 0.1,
-            animation: `starFloat ${Math.random() * 4 + 3}s ease-in-out ${Math.random() * 3}s infinite`,
-          }} />
+        {[...Array(50)].map((_, i) => (
+          <div key={i} style={{ position: "absolute", width: Math.random() * 2 + 1, height: Math.random() * 2 + 1, background: "white", borderRadius: "50%", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, opacity: Math.random() * 0.4 + 0.1, animation: `starFloat ${Math.random() * 4 + 3}s ease-in-out ${Math.random() * 3}s infinite` }} />
         ))}
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,200,255,0.08) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,200,255,0.07) 0%, transparent 70%)" }} />
       </div>
+      )}  {/* end stars */}
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 960, margin: "0 auto", padding: "0 16px 60px" }}>
+      {/* Toast */}
+      {toast && <Toast message={toast.message} emoji={toast.emoji} onClose={() => setToast(null)} />}
+
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 980, margin: "0 auto", padding: "0 14px 80px" }}>
 
         {/* Header */}
-        <div style={{ padding: "32px 0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ padding: "28px 0 16px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #00c8ff, #0050ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🌐</div>
-              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1px" }}>
-                Zone<span style={{ color: "#00c8ff" }}>Atlas</span>
-              </h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#00c8ff,#0050ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>🌐</div>
+              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1px", color: "#eef4ff" }}>Zone<span style={{ color: "#00c8ff" }}>Atlas</span></h1>
             </div>
-            <p style={{ fontSize: 15, color: "var(--text2)", fontWeight: 500 }}>World time zones · Meeting planner · Sleep-aware scheduling</p>
+            {/* Dynamic greeting */}
+            <p style={{ fontSize: 15, color: "#8ba4cc", fontWeight: 500 }}>
+              {greeting.emoji} {greeting.text} <span style={{ color: "#4a6080", fontWeight: 400 }}>{greeting.sub}</span>
+            </p>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button onClick={() => setUse24(v => !v)} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: use24 ? "var(--cyan-dim)" : "transparent", color: use24 ? "var(--cyan)" : "var(--text2)", fontSize: 12, fontWeight: 500 }}>
-              {use24 ? "24h" : "12h"}
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            {Object.keys(profiles).length > 0 && (
+              <select onChange={e => { if (e.target.value) loadProfile(e.target.value); e.target.value = ""; }} className="input-field" style={{ fontSize: 12, padding: "6px 10px" }}>
+                <option value="">Load team...</option>
+                {Object.keys(profiles).map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            )}
+            <button onClick={() => setShowProfileSave(v => !v)} className="pill-btn" style={{ gap: 4, display: "flex", alignItems: "center" }}>💾 Save team</button>
+            <button onClick={() => setShowEmbed(v => !v)} className="pill-btn">🔗 Embed</button>
+            <button onClick={() => setU24(v => !v)} className={`pill-btn ${u24 ? "active" : ""}`}>{u24 ? "24h" : "12h"}</button>
+            <button onClick={() => setLightMode(v => !v)} className="pill-btn" title={lightMode ? "Switch to dark mode" : "Switch to light mode"} style={{ fontSize: 15 }}>
+              {lightMode ? "🌙" : "☀️"}
             </button>
-            <button onClick={copyLink} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: copied ? "var(--cyan-dim)" : "transparent", color: copied ? "var(--cyan)" : "var(--text2)", fontSize: 12, fontWeight: 500 }}>
-              {copied ? "✓ Copied!" : "🔗 Share"}
-            </button>
+            <button onClick={() => copy(window.location.href, "sharelink", "Link copied! Anyone opening it sees the same cities.")} className="pill-btn">📤 Share</button>
           </div>
         </div>
 
+        {/* Onboarding progress dots */}
+        {onboardStep < 3 && (
+          <div className="fade-in" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, background: "rgba(0,200,255,0.06)", border: "1px solid rgba(0,200,255,0.12)", borderRadius: 10, padding: "10px 14px" }}>
+            {[
+              { n: 1, label: "Your time ✓", done: onboardStep >= 1 },
+              { n: 2, label: "Add a city", done: onboardStep >= 2 },
+              { n: 3, label: "See availability", done: onboardStep >= 3 },
+            ].map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: s.done ? "#00c864" : "rgba(0,200,255,0.15)", border: `1px solid ${s.done ? "#00c864" : "rgba(0,200,255,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: s.done ? "#060d1f" : "#00c8ff" }}>
+                  {s.done ? "✓" : s.n}
+                </div>
+                <span style={{ fontSize: 12, color: s.done ? "#00c864" : "#8ba4cc", fontWeight: s.done ? 600 : 400 }}>{s.label}</span>
+                {i < 2 && <span style={{ color: "#4a6080", fontSize: 12 }}>→</span>}
+              </div>
+            ))}
+            <span style={{ marginLeft: "auto", fontSize: 11, color: "#4a6080" }}>Getting started</span>
+          </div>
+        )}
+
+        {/* Save profile panel */}
+        {showProfileSave && (
+          <div className="fade-in" style={{ background: "#0c1730", border: "1px solid var(--border)", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#eef4ff", marginBottom: 8 }}>Save your current cities as a team</p>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <input className="input-field" style={{ flex: 1, minWidth: 180 }} placeholder="e.g. My Dev Team, Client NYC" value={profileName} onChange={e => setProfileName(e.target.value)} onKeyDown={e => e.key === "Enter" && saveProfile()} autoFocus />
+              <button onClick={saveProfile} style={{ padding: "8px 18px", borderRadius: 8, background: "#00c8ff", color: "#060d1f", fontSize: 13, fontWeight: 700 }}>Save</button>
+            </div>
+            {Object.keys(profiles).length > 0 && (
+              <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11, color: "#4a6080", marginRight: 4 }}>Saved teams:</span>
+                {Object.keys(profiles).map(p => (
+                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 4, background: "var(--bg3)", borderRadius: 8, padding: "3px 10px", fontSize: 12 }}>
+                    <span style={{ color: "#8ba4cc", cursor: "pointer" }} onClick={() => loadProfile(p)}>{p}</span>
+                    <span style={{ color: "#4a6080", cursor: "pointer" }} onClick={() => deleteProfile(p)}>✕</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Embed panel */}
+        {showEmbed && (
+          <div className="fade-in" style={{ background: "#0c1730", border: "1px solid var(--border)", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#eef4ff", marginBottom: 4 }}>Embed this clock on any website or Notion page</p>
+            <p style={{ fontSize: 12, color: "#4a6080", marginBottom: 10 }}>Shows your current cities updating in real time. Works in Notion, websites, and wikis.</p>
+            <div style={{ background: "#111f3d", borderRadius: 8, padding: "10px 14px", fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#00c8ff", wordBreak: "break-all", marginBottom: 8 }}>{embedCode}</div>
+            <button onClick={() => copy(embedCode, "embed", "Embed code copied! Paste into any website or Notion page.")} className="action-btn">
+              {copiedKey === "embed" ? "✓ Copied!" : "Copy embed code"}
+            </button>
+          </div>
+        )}
+
+        {/* Share nudge */}
+        {showShareNudge && (
+          <div className="nudge-bar">
+            <span style={{ fontSize: 18 }}>📤</span>
+            <span style={{ flex: 1 }}>Loving ZoneAtlas? Your teammates will thank you for sharing it.</span>
+            <button onClick={() => { copy(window.location.href, "share", "Link copied!"); setShowShareNudge(false); }} className="action-btn" style={{ flexShrink: 0 }}>Share ZoneAtlas</button>
+            <button onClick={() => setShowShareNudge(false)} style={{ color: "#4a6080", fontSize: 13, background: "none", border: "none", cursor: "pointer", padding: "0 6px" }}>✕</button>
+          </div>
+        )}
+
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 24, borderBottom: "1px solid var(--border2)", paddingBottom: 12, flexWrap: "wrap" }}>
-          {[["clock", "🕐 World Clock"], ["planner", "📅 Meeting Planner"], ["converter", "🔄 Converter"]].map(([id, label]) => (
-            <button key={id} className={`tab-btn ${activeTab === id ? "active" : ""}`} onClick={() => setActiveTab(id)}>{label}</button>
+        <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid var(--border2)", paddingBottom: 10, overflowX: "auto" }}>
+          {[
+            ["clock", "🕐 World Clock", "Live clocks + sleep overlay"],
+            ["planner", "📅 Meeting Planner", "Find the best meeting time"],
+            ["heatmap", "🔥 Team Overlap", "Weekly availability heatmap"],
+            ["discord", "💬 Discord Times", "Auto-timezone timestamps"],
+            ["recurring", "🔄 Recurring Check", "DST impact on weekly meetings"],
+            ["converter", "🔃 Converter", "Convert any time instantly"],
+          ].map(([id, label, desc]) => (
+            <button key={id} className={`tab-btn ${tab === id ? "active" : ""}`} onClick={() => {
+              setTab(id);
+              if (id === "planner" && !seenTooltips["tip_planner"]) {
+                setTimeout(() => { setActiveTooltip({ key: "tip_planner", text: "Drag the slider to find a time that works for everyone. Green slots = everyone's in work hours." }); markTooltip("tip_planner"); }, 400);
+              }
+              if (id === "heatmap" && !seenTooltips["tip_heatmap"]) {
+                setTimeout(() => { setActiveTooltip({ key: "tip_heatmap", text: "Darker green = more people available. Click any cell to set that as your meeting hour." }); markTooltip("tip_heatmap"); }, 400);
+              }
+              if (id === "discord" && !seenTooltips["tip_discord"]) {
+                setTimeout(() => { setActiveTooltip({ key: "tip_discord", text: "Paste these codes into Discord — they show in every user's local time automatically." }); markTooltip("tip_discord"); }, 400);
+              }
+            }}
+              title={desc}>
+              {label}
+            </button>
           ))}
         </div>
 
+        {/* Active tooltip bar */}
+        {activeTooltip && <Tooltip text={activeTooltip.text} onClose={() => setActiveTooltip(null)} />}
+
         {/* ── WORLD CLOCK TAB ── */}
-        {activeTab === "clock" && (
+        {tab === "clock" && (
           <div className="fade-in">
-            {/* Zone Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
-              {selectedZones.map((zone, idx) => {
-                const t = getTimeInZone(zone.tz, now);
+            {/* Quick picks for onboarding */}
+            {zones.length < 2 && (
+              <div className="fade-in" style={{ marginBottom: 14 }}>
+                <p style={{ fontSize: 12, color: "#4a6080", marginBottom: 8, fontWeight: 600 }}>Quick add — where is your team?</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {QUICK_PICKS.filter(n => !zones.find(z => z.name === n)).map(name => {
+                    const city = CITIES.find(c => c.name === name);
+                    return city ? (
+                      <button key={name} onClick={() => addZone(city)} style={{ padding: "6px 12px", borderRadius: 20, background: "rgba(0,200,255,0.08)", border: "1px solid rgba(0,200,255,0.15)", color: "#8ba4cc", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = "#00c8ff"; e.currentTarget.style.color = "#00c8ff"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,200,255,0.15)"; e.currentTarget.style.color = "#8ba4cc"; }}>
+                        {city.flag} {name}
+                      </button>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(185px, 1fr))", gap: 10, marginBottom: 16 }}>
+              {zones.map((zone, idx) => {
+                const t = getZoneTime(zone.tz, now);
                 const h = t.getHours();
-                const status = getHourStatus(h);
-                const statusColor = status === "work" ? "var(--green)" : status === "awake" ? "var(--yellow)" : "var(--text3)";
-                const statusLabel = status === "work" ? "Working hours" : status === "awake" ? "Awake" : "Likely sleeping";
+                const ws = customHours[zone.name] || { start: 9, end: 18 };
+                const si = getStatusInfo(h, ws);
+                const holiday = checkHoliday(zone.tz, now);
                 return (
                   <div key={idx} className="zone-card fade-in">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ fontSize: 18 }}>{zone.flag}</span>
                         <div>
                           <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px" }}>{zone.name}</div>
-                          <div style={{ fontSize: 11, color: "var(--text3)" }}>{getOffsetLabel(zone.tz)}</div>
+                          <div style={{ fontSize: 10, color: "#4a6080" }}>{getOffset(zone.tz)}</div>
                         </div>
                       </div>
-                      <button onClick={() => removeZone(idx)} style={{ color: "var(--text3)", fontSize: 14, padding: "2px 4px", borderRadius: 4, opacity: 0.6 }}>✕</button>
+                      <div style={{ display: "flex", gap: 2 }}>
+                        <button onClick={() => setShowCustomHours(showCustomHours === idx ? null : idx)} style={{ padding: "2px 5px", color: "#4a6080", fontSize: 12 }} title="Set work hours">⚙️</button>
+                        <button onClick={() => removeZone(idx)} style={{ padding: "2px 5px", color: "#4a6080", fontSize: 13 }}>✕</button>
+                      </div>
                     </div>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 24, fontWeight: 700, color: "var(--cyan)", letterSpacing: "0.5px", marginBottom: 6 }}>
-                      {formatTime(t, use24)}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--text2)", marginBottom: 8 }}>{getDateInZone(zone.tz, now)}</div>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 22, fontWeight: 700, color: "#00c8ff", marginBottom: 4, letterSpacing: "0.5px" }}>{fmt(t, u24)}</div>
+                    <div style={{ fontSize: 11, color: "#8ba4cc", marginBottom: 6 }}>{getDateStr(zone.tz, now)}</div>
+                    {holiday && <div style={{ fontSize: 11, color: "#ffb400", marginBottom: 4 }}>🎉 {holiday.n} today</div>}
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: statusColor }} className={status === "work" ? "pulse" : ""} />
-                      <span style={{ fontSize: 11, color: statusColor }}>{statusLabel}</span>
+                      <div style={{ width: 7, height: 7, borderRadius: "50%", background: si.color, flexShrink: 0 }} className={si.status === "work" ? "pulse" : ""} />
+                      <span style={{ fontSize: 12, color: si.color, fontWeight: 600 }}>{si.label}</span>
                     </div>
+                    {showCustomHours === idx && (
+                      <div className="fade-in" style={{ marginTop: 10, padding: "8px 10px", background: "#111f3d", borderRadius: 8, border: "1px solid var(--border2)" }}>
+                        <p style={{ fontSize: 11, color: "#8ba4cc", marginBottom: 6, fontWeight: 600 }}>Work hours for {zone.name}</p>
+                        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                          <input type="number" min="0" max="23" value={ws.start} onChange={e => setCustomHours(ch => ({ ...ch, [zone.name]: { ...ws, start: +e.target.value } }))} className="input-field" style={{ width: 52, padding: "4px 6px", fontSize: 12 }} />
+                          <span style={{ color: "#4a6080", fontSize: 12 }}>to</span>
+                          <input type="number" min="0" max="23" value={ws.end} onChange={e => setCustomHours(ch => ({ ...ch, [zone.name]: { ...ws, end: +e.target.value } }))} className="input-field" style={{ width: 52, padding: "4px 6px", fontSize: 12 }} />
+                          <span style={{ fontSize: 11, color: "#4a6080" }}>hr</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
 
-              {/* Add City */}
-              {selectedZones.length < 8 && (
+              {/* Add city card */}
+              {zones.length < 8 && (
                 <div style={{ position: "relative" }}>
-                  <button onClick={() => setShowSearch(v => !v)} style={{ width: "100%", height: "100%", minHeight: 140, borderRadius: "var(--radius)", border: "1px dashed var(--border)", background: "transparent", color: "var(--text3)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 13, transition: "all 0.2s" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--cyan)"; e.currentTarget.style.color = "var(--cyan)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text3)"; }}>
+                  <button onClick={() => setShowSearch(v => !v)} style={{ width: "100%", minHeight: zones.length === 0 ? 160 : 140, borderRadius: "var(--radius)", border: `1px dashed ${zones.length === 0 ? "rgba(0,200,255,0.4)" : "var(--border)"}`, background: zones.length === 0 ? "rgba(0,200,255,0.04)" : "transparent", color: zones.length === 0 ? "#00c8ff" : "#4a6080", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 13, fontWeight: 600, transition: "all 0.2s", animation: zones.length === 0 ? "shimmer 2s infinite" : "none" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "#00c8ff"; e.currentTarget.style.color = "#00c8ff"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = zones.length === 0 ? "rgba(0,200,255,0.4)" : "var(--border)"; e.currentTarget.style.color = zones.length === 0 ? "#00c8ff" : "#4a6080"; }}>
                     <span style={{ fontSize: 24 }}>＋</span>
-                    <span>Add city</span>
+                    <span>{zones.length === 0 ? "Add your first city" : "Add a city"}</span>
+                    {zones.length === 0 && <span style={{ fontSize: 11, color: "rgba(0,200,255,0.6)", fontWeight: 400 }}>Search or pick from quick adds above</span>}
                   </button>
                   {showSearch && (
-                    <div className="fade-in" style={{ position: "absolute", top: "105%", left: 0, right: 0, zIndex: 50, background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", overflow: "hidden", minWidth: 220 }}>
+                    <div className="fade-in" style={{ position: "absolute", top: "105%", left: 0, right: 0, zIndex: 50, background: "#0c1730", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", minWidth: 240 }}>
                       <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border2)" }}>
-                        <input autoFocus value={search} onChange={e => setSearch(e.target.value)} placeholder="Search city…" style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: "var(--text)", fontSize: 13 }} />
+                        <input autoFocus value={search} onChange={e => setSearch(e.target.value)} placeholder="Search any city..." style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: "#eef4ff", fontSize: 14, fontFamily: "'Plus Jakarta Sans', system-ui" }} />
+                      </div>
+                      <div style={{ display: "flex", gap: 4, padding: "6px 10px", flexWrap: "wrap", borderBottom: "1px solid var(--border2)" }}>
+                        {REGIONS.map(r => (
+                          <button key={r} className={`pill-btn ${regionFilter === r ? "active" : ""}`} style={{ fontSize: 11, padding: "3px 8px" }} onClick={() => setRegionFilter(r)}>{r}</button>
+                        ))}
                       </div>
                       <div style={{ maxHeight: 240, overflowY: "auto" }}>
-                        {filtered.slice(0, 20).map(c => (
+                        {filtered.slice(0, 18).map(c => (
                           <div key={c.name} className="search-item" onClick={() => addZone(c)}>
-                            <span>{c.flag}</span>
-                            <span>{c.name}</span>
-                            <span style={{ marginLeft: "auto", color: "var(--text3)", fontSize: 11 }}>{getOffsetLabel(c.tz)}</span>
+                            <span>{c.flag}</span><span style={{ flex: 1 }}>{c.name}</span>
+                            <span style={{ color: "#4a6080", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{getOffset(c.tz)}</span>
                           </div>
                         ))}
-                        {filtered.length === 0 && <div style={{ padding: "12px", color: "var(--text3)", fontSize: 13, textAlign: "center" }}>No results</div>}
+                        {filtered.length === 0 && <div style={{ padding: "16px", color: "#4a6080", fontSize: 13, textAlign: "center" }}>No cities found</div>}
                       </div>
                     </div>
                   )}
@@ -322,41 +700,47 @@ export default function WorldTimezone() {
               )}
             </div>
 
+            {/* Meeting planner nudge after 3+ cities */}
+            {zones.length >= 3 && tab === "clock" && (
+              <div className="nudge-bar">
+                <span style={{ fontSize: 18 }}>📅</span>
+                <span style={{ flex: 1, fontSize: 13 }}>Ready to find the best meeting time for all <strong style={{ color: "#eef4ff" }}>{zones.length} cities</strong>?</span>
+                <button onClick={() => setTab("planner")} className="action-btn" style={{ flexShrink: 0 }}>Open Meeting Planner →</button>
+              </div>
+            )}
+
             {/* 24h Timeline */}
-            {selectedZones.length > 0 && (
-              <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: "16px", marginBottom: 20 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: "var(--text2)", letterSpacing: "-0.2px" }}>24-Hour Overlap View</div>
-                <div style={{ overflowX: "auto", paddingBottom: 8 }}>
-                  {/* Hour labels */}
-                  <div style={{ display: "flex", minWidth: 600, marginBottom: 4 }}>
-                    <div style={{ width: 120, flexShrink: 0 }} />
-                    {[0, 3, 6, 9, 12, 15, 18, 21].map(h => (
-                      <div key={h} style={{ flex: "0 0 calc((100% - 120px) / 8)", fontSize: 10, color: "var(--text3)", fontFamily: "'Space Mono', monospace" }}>
-                        {formatTimeShort(h, use24)}
-                      </div>
+            {zones.length >= 2 && (
+              <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: "16px", marginBottom: 16 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, color: "#8ba4cc", letterSpacing: "-0.2px" }}>24-Hour Sleep-Aware Timeline</div>
+                <div style={{ overflowX: "auto" }}>
+                  <div style={{ display: "flex", minWidth: 520, marginBottom: 3 }}>
+                    <div style={{ width: 110, flexShrink: 0 }} />
+                    {[0, 4, 8, 12, 16, 20].map(h => (
+                      <div key={h} style={{ flex: "0 0 calc((100% - 110px)/6)", fontSize: 9, color: "#4a6080", fontFamily: "'Space Mono', monospace" }}>{fmtH(h, u24)}</div>
                     ))}
                   </div>
-                  {selectedZones.map((zone, zi) => {
-                    const baseOffset = getTimeInZone(zone.tz, now).getHours() - now.getHours();
+                  {zones.map((zone, zi) => {
+                    const off = getZoneTime(zone.tz, now).getHours() - now.getHours();
+                    const ws = customHours[zone.name] || { start: 9, end: 18 };
                     return (
-                      <div key={zi} style={{ display: "flex", minWidth: 600, marginBottom: 4, alignItems: "center" }}>
-                        <div style={{ width: 120, flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontSize: 14 }}>{zone.flag}</span>
-                          <span style={{ fontSize: 11, color: "var(--text2)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 80 }}>{zone.name}</span>
+                      <div key={zi} style={{ display: "flex", minWidth: 520, marginBottom: 3, alignItems: "center" }}>
+                        <div style={{ width: 110, flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
+                          <span style={{ fontSize: 13 }}>{zone.flag}</span>
+                          <span style={{ fontSize: 11, color: "#8ba4cc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 85 }}>{zone.name}</span>
                         </div>
                         <div style={{ display: "flex", flex: 1, gap: 1 }}>
                           {Array.from({ length: 24 }, (_, h) => {
-                            const localH = (h + baseOffset + 48) % 24;
-                            const status = getHourStatus(localH);
-                            const isNow = Math.abs(localH - getTimeInZone(zone.tz, now).getHours()) < 1;
-                            const isHovered = hoveredHour === h;
-                            let bg = status === "work" ? "rgba(0,200,100,0.2)" : status === "awake" ? "rgba(255,180,0,0.1)" : "rgba(255,255,255,0.03)";
-                            if (isHovered) bg = "rgba(0,200,255,0.2)";
-                            if (isNow) bg = "rgba(0,200,255,0.35)";
+                            const lh = (h + off + 48) % 24;
+                            const si = getStatusInfo(lh, ws);
+                            const isNow = Math.abs(lh - getZoneTime(zone.tz, now).getHours()) < 1;
+                            const isHov = hoverH === h;
+                            let bg = si.bg;
+                            if (isHov) bg = "rgba(0,200,255,0.2)";
+                            if (isNow) bg = "rgba(0,200,255,0.4)";
                             return (
-                              <div key={h} className="hour-cell" style={{ background: bg, border: isNow ? "1px solid var(--cyan)" : isHovered ? "1px solid rgba(0,200,255,0.3)" : "1px solid transparent", color: isNow ? "var(--cyan)" : "transparent", fontSize: 9 }}
-                                onMouseEnter={() => setHoveredHour(h)}
-                                onMouseLeave={() => setHoveredHour(null)}>
+                              <div key={h} className="hour-cell" style={{ background: bg, border: isNow ? "1px solid #00c8ff" : isHov ? "1px solid rgba(0,200,255,0.3)" : "1px solid transparent", color: isNow ? "#00c8ff" : "transparent" }}
+                                onMouseEnter={() => setHoverH(h)} onMouseLeave={() => setHoverH(null)} title={`${fmtH(lh, u24)} in ${zone.name} — ${si.label}`}>
                                 {isNow ? "▼" : ""}
                               </div>
                             );
@@ -366,75 +750,78 @@ export default function WorldTimezone() {
                     );
                   })}
                 </div>
-                <div style={{ display: "flex", gap: 16, marginTop: 10, flexWrap: "wrap" }}>
-                  {[["rgba(0,200,100,0.2)", "Work hours (9–6pm)"], ["rgba(255,180,0,0.1)", "Awake (7am–10pm)"], ["rgba(255,255,255,0.03)", "Sleeping"], ["rgba(0,200,255,0.35)", "Current time"]].map(([bg, label]) => (
-                    <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <div style={{ width: 14, height: 14, borderRadius: 3, background: bg, border: label.includes("Current") ? "1px solid var(--cyan)" : "none" }} />
-                      <span style={{ fontSize: 11, color: "var(--text3)" }}>{label}</span>
+                <div style={{ display: "flex", gap: 14, marginTop: 8, flexWrap: "wrap" }}>
+                  {[["rgba(0,200,100,0.2)", "Work hrs"], ["rgba(255,180,0,0.12)", "Awake"], ["rgba(255,255,255,0.02)", "Sleeping"], ["rgba(0,200,255,0.4)", "Now"]].map(([bg, l]) => (
+                    <div key={l} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <div style={{ width: 12, height: 12, borderRadius: 3, background: bg, border: l === "Now" ? "1px solid #00c8ff" : "none" }} />
+                      <span style={{ fontSize: 10, color: "#4a6080" }}>{l}</span>
                     </div>
                   ))}
                 </div>
+                {!seenTooltips["tip_timeline"] && (
+                  <div style={{ marginTop: 8, fontSize: 11, color: "rgba(0,200,255,0.6)" }} onClick={() => markTooltip("tip_timeline")}>
+                    💡 Hover any hour to see all times · Click ⚙️ on a card to set custom work hours
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
         {/* ── MEETING PLANNER TAB ── */}
-        {activeTab === "planner" && (
+        {tab === "planner" && (
           <div className="fade-in">
-            <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: 20, marginBottom: 16 }}>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 4 }}>Meeting date</div>
-                  <input type="date" value={meetingDate} onChange={e => setMeetingDate(e.target.value)} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: 13, outline: "none" }} />
-                </div>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 4 }}>
-                    Selected: <span style={{ color: "var(--cyan)" }}>{formatTimeShort(meetingHour, use24)}</span> in <strong>{selectedZones[0]?.name || "first city"}</strong>
-                  </div>
-                  <input type="range" min="0" max="23" value={meetingHour} onChange={e => setMeetingHour(+e.target.value)} style={{ width: "100%", accentColor: "var(--cyan)" }} />
+            {zones.length < 2 && (
+              <div className="nudge-bar">
+                <span>💡</span>
+                <span>Add at least 2 cities on the World Clock tab to use the meeting planner.</span>
+                <button onClick={() => setTab("clock")} className="action-btn">Add cities →</button>
+              </div>
+            )}
+
+            <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18, marginBottom: 14 }}>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 6, fontWeight: 600 }}>Choose meeting time (based on {zones[0]?.name || "first city"})</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <input type="range" min="0" max="23" value={mHour} onChange={e => setMHour(+e.target.value)} style={{ accentColor: "#00c8ff", width: 200 }} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, color: "#00c8ff", fontWeight: 700 }}>{fmtH(mHour, u24)}</span>
+                  {allInWorkHours && <span style={{ fontSize: 12, color: "#00c864", fontWeight: 700, background: "rgba(0,200,100,0.12)", padding: "4px 10px", borderRadius: 20 }}>🎯 Perfect — everyone's in work hours!</span>}
                 </div>
               </div>
 
-              {/* Meeting planner grid */}
-              <div style={{ overflowX: "auto" }}>
-                <div style={{ display: "flex", minWidth: 500, gap: 1, marginBottom: 8 }}>
-                  <div style={{ width: 110, flexShrink: 0 }} />
-                  {Array.from({ length: 24 }, (_, h) => (
-                    <div key={h} style={{ flex: 1, fontSize: 9, color: "var(--text3)", textAlign: "center", fontFamily: "'Space Mono', monospace" }}>
-                      {h % 3 === 0 ? formatTimeShort(h, use24) : ""}
+              {/* Conflict warnings */}
+              {getMeetingConflicts().length > 0 && (
+                <div style={{ marginBottom: 12 }}>
+                  {getMeetingConflicts().map(c => (
+                    <div key={c.city} style={{ fontSize: 12, color: c.type === "sleep" ? "#ff4560" : "#ffb400", background: c.type === "sleep" ? "rgba(255,69,96,0.08)" : "rgba(255,180,0,0.08)", border: `1px solid ${c.type === "sleep" ? "rgba(255,69,96,0.2)" : "rgba(255,180,0,0.2)"}`, borderRadius: 8, padding: "7px 12px", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                      {c.type === "sleep" ? "😴" : "⚠️"}
+                      <strong>{c.flag} {c.city}</strong> — {fmtH(c.hour, u24)} · {c.type === "sleep" ? "Likely sleeping" : "Outside work hours"}
                     </div>
                   ))}
                 </div>
+              )}
 
-                {selectedZones.map((zone, zi) => {
-                  const zoneNow = getTimeInZone(zone.tz, now);
-                  const zoneMeetingH = getTimeInZone(zone.tz, new Date(meetingDateObj.getTime() + meetingHour * 3600000 + new Date().getTimezoneOffset() * 60000 + (getTimeInZone(zone.tz, new Date()).getTime() - new Date().getTime()))).getHours();
-                  const baseOff = zoneNow.getHours() - now.getHours();
-
+              <div style={{ overflowX: "auto" }}>
+                {zones.map((zone, zi) => {
+                  const off = getZoneTime(zone.tz, now).getHours() - now.getHours();
+                  const ws = customHours[zone.name] || { start: 9, end: 18 };
                   return (
-                    <div key={zi} style={{ display: "flex", minWidth: 500, marginBottom: 4, alignItems: "center" }}>
+                    <div key={zi} style={{ display: "flex", minWidth: 480, marginBottom: 4, alignItems: "center" }}>
                       <div style={{ width: 110, flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
-                        <span style={{ fontSize: 14 }}>{zone.flag}</span>
+                        <span style={{ fontSize: 13 }}>{zone.flag}</span>
                         <div>
-                          <div style={{ fontSize: 11, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 80 }}>{zone.name}</div>
-                          <div style={{ fontSize: 10, color: "var(--text3)" }}>{getOffsetLabel(zone.tz)}</div>
+                          <div style={{ fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 85 }}>{zone.name}</div>
+                          <div style={{ fontSize: 9, color: "#4a6080" }}>{getOffset(zone.tz)}</div>
                         </div>
                       </div>
                       <div style={{ display: "flex", flex: 1, gap: 1 }}>
                         {Array.from({ length: 24 }, (_, h) => {
-                          const localH = (h + baseOff + 48) % 24;
-                          const isSelected = h === meetingHour;
-                          const status = getHourStatus(localH);
-                          let bg, borderC, textC;
-                          if (isSelected) { bg = "rgba(0,200,255,0.3)"; borderC = "var(--cyan)"; textC = "var(--cyan)"; }
-                          else if (status === "work") { bg = "rgba(0,200,100,0.15)"; borderC = "transparent"; textC = "transparent"; }
-                          else if (status === "awake") { bg = "rgba(255,180,0,0.08)"; borderC = "transparent"; textC = "transparent"; }
-                          else { bg = "rgba(255,255,255,0.02)"; borderC = "transparent"; textC = "transparent"; }
-
+                          const lh = (h + off + 48) % 24;
+                          const si = getStatusInfo(lh, ws);
+                          const isSel = h === mHour;
                           return (
-                            <div key={h} className="meeting-slot" style={{ background: bg, border: `1px solid ${borderC}`, color: textC }} onClick={() => setMeetingHour(h)}>
-                              {isSelected ? formatTimeShort(localH, use24) : ""}
+                            <div key={h} className={`meeting-slot${isSel ? " selected" : ""}`} style={{ background: isSel ? "rgba(0,200,255,0.35)" : si.bg, borderColor: isSel ? "#00c8ff" : "transparent", color: isSel ? "#00c8ff" : "transparent", fontSize: 9 }} onClick={() => setMHour(h)} title={`${fmtH(lh, u24)} in ${zone.name} — ${si.label}`}>
+                              {isSel ? fmtH(lh, u24) : ""}
                             </div>
                           );
                         })}
@@ -444,159 +831,298 @@ export default function WorldTimezone() {
                 })}
               </div>
 
-              <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg3)", borderRadius: 8, border: "1px solid var(--border)" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--cyan)", marginBottom: 10, letterSpacing: "-0.2px" }}>📋 Meeting Summary</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 8 }}>
-                  {selectedZones.map((zone, i) => {
-                    const localH = getTimeInZone(zone.tz, new Date(now.getTime() + (meetingHour - now.getHours()) * 3600000)).getHours();
-                    const status = getHourStatus(localH);
-                    const statusIcon = status === "work" ? "✅" : status === "awake" ? "⚠️" : "😴";
+              {/* Meeting summary + invite */}
+              <div style={{ marginTop: 14, padding: "14px", background: "#111f3d", borderRadius: 10, border: "1px solid var(--border2)" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#00c8ff", marginBottom: 10, letterSpacing: "-0.2px" }}>Meeting Summary</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 6, marginBottom: 12 }}>
+                  {zones.map((zone, i) => {
+                    const off = getZoneTime(zone.tz, now).getHours() - now.getHours();
+                    const lh = (mHour + off + 48) % 24;
+                    const ws = customHours[zone.name] || { start: 9, end: 18 };
+                    const si = getStatusInfo(lh, ws);
                     return (
-                      <div key={i} style={{ fontSize: 12 }}>
-                        <span style={{ marginRight: 4 }}>{zone.flag}</span>
-                        <strong>{zone.name}:</strong>{" "}
-                        <span style={{ fontFamily: "'Space Mono', monospace", color: "var(--cyan)" }}>{formatTimeShort(localH, use24)}</span>{" "}
-                        <span>{statusIcon}</span>
+                      <div key={i} style={{ fontSize: 12, fontWeight: 600 }}>
+                        {zone.flag} {zone.name}: <span style={{ fontFamily: "'Space Mono', monospace", color: "#00c8ff" }}>{fmtH(lh, u24)}</span>
+                        <span style={{ marginLeft: 4 }}>{si.status === "work" ? "✅" : si.status === "awake" ? "⚠️" : "😴"}</span>
                       </div>
                     );
                   })}
                 </div>
-                <div style={{ marginTop: 10, fontSize: 11, color: "var(--text3)" }}>
-                  ✅ Work hours &nbsp;⚠️ Outside work but awake &nbsp;😴 Sleeping. Consider rescheduling
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#00c8ff", background: "#060d1f", padding: "10px 12px", borderRadius: 8, whiteSpace: "pre-wrap", marginBottom: 10 }}>{generateInvite()}</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <button onClick={() => copy(generateInvite(), "invite", "Invite text copied! Paste it straight into Slack or email.")} className="action-btn">
+                    {copiedKey === "invite" ? "✓ Copied!" : "📋 Copy invite text"}
+                  </button>
+                  <a href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Team+Meeting&dates=${new Date().toISOString().split("T")[0].replace(/-/g,"")}&details=${encodeURIComponent(generateInvite())}`} target="_blank" rel="noopener noreferrer" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border2)", color: "#8ba4cc", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>📅 Google Calendar</a>
+                  <a href={`https://outlook.live.com/calendar/0/deeplink/compose?subject=Team+Meeting&body=${encodeURIComponent(generateInvite())}`} target="_blank" rel="noopener noreferrer" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border2)", color: "#8ba4cc", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>📅 Outlook</a>
                 </div>
+              </div>
+
+              {/* Best windows */}
+              <div style={{ marginTop: 12, background: "rgba(0,200,255,0.04)", border: "1px solid rgba(0,200,255,0.1)", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#00c8ff", marginBottom: 8 }}>Best Windows Today</div>
+                {(() => {
+                  const work = [], awake = [];
+                  for (let h = 0; h < 24; h++) {
+                    const allW = zones.every(z => { const o = getZoneTime(z.tz, now).getHours() - now.getHours(); const lh = (h + o + 48) % 24; const ws = customHours[z.name] || { start: 9, end: 18 }; return lh >= ws.start && lh < ws.end; });
+                    const allA = zones.every(z => { const o = getZoneTime(z.tz, now).getHours() - now.getHours(); const lh = (h + o + 48) % 24; return lh >= 7 && lh < 22; });
+                    if (allW) work.push(h); else if (allA) awake.push(h);
+                  }
+                  if (!work.length && !awake.length) return <p style={{ fontSize: 13, color: "#ff4560" }}>No overlap where everyone is awake. Consider asynchronous communication or a rotating meeting schedule.</p>;
+                  return (
+                    <div style={{ fontSize: 14, color: "#8ba4cc", lineHeight: 1.9 }}>
+                      {work.length > 0 && <div>✅ <strong style={{ color: "#eef4ff" }}>Everyone in work hours:</strong> {work.map(h => fmtH(h, u24)).join(", ")} <span style={{ fontSize: 12, color: "#4a6080" }}>(based on {zones[0]?.name})</span></div>}
+                      {awake.length > 0 && <div>⚠️ <strong style={{ color: "#eef4ff" }}>All awake, outside work:</strong> {awake.map(h => fmtH(h, u24)).join(", ")}</div>}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* Best time suggestion */}
-            <div style={{ background: "linear-gradient(135deg, rgba(0,200,255,0.06), rgba(0,80,255,0.06))", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--cyan)", letterSpacing: "-0.3px" }}>🎯 Best Meeting Windows Today</div>
-              <div style={{ fontSize: 15, color: "var(--text2)", lineHeight: 1.9 }}>
-                {(() => {
-                  const windows = [];
-                  for (let h = 0; h < 24; h++) {
-                    const allWork = selectedZones.every(zone => {
-                      const baseOff = getTimeInZone(zone.tz, now).getHours() - now.getHours();
-                      const localH = (h + baseOff + 48) % 24;
-                      return getHourStatus(localH) === "work";
-                    });
-                    const allAwake = selectedZones.every(zone => {
-                      const baseOff = getTimeInZone(zone.tz, now).getHours() - now.getHours();
-                      const localH = (h + baseOff + 48) % 24;
-                      return getHourStatus(localH) !== "sleep";
-                    });
-                    if (allWork) windows.push({ h, type: "work" });
-                    else if (allAwake) windows.push({ h, type: "awake" });
-                  }
-                  if (windows.length === 0) return <span style={{ color: "var(--red)" }}>⚠️ No overlap where everyone is awake. Consider async communication or a rotating schedule.</span>;
-                  const workW = windows.filter(w => w.type === "work");
-                  const awakeW = windows.filter(w => w.type === "awake");
+            {/* Scheduling affiliate nudge */}
+            <div style={{ background: "rgba(0,200,255,0.04)", border: "1px solid rgba(0,200,255,0.1)", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#8ba4cc", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 16 }}>📆</span>
+              <span style={{ flex: 1 }}>Scheduling lots of meetings? Let people book time with you directly — no back-and-forth emails.</span>
+              <a href="https://cal.com" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(0,200,255,0.12)", border: "1px solid rgba(0,200,255,0.2)", color: "#00c8ff", fontSize: 12, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>Try Cal.com free →</a>
+            </div>
+          </div>
+        )}
+
+        {/* ── HEATMAP TAB ── */}
+        {tab === "heatmap" && (
+          <div className="fade-in">
+            {zones.length < 2 && (
+              <div className="nudge-bar">
+                <span>💡</span>
+                <span>Add at least 2 cities on the World Clock tab to see the team overlap heatmap.</span>
+                <button onClick={() => setTab("clock")} className="action-btn">Add cities →</button>
+              </div>
+            )}
+            <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#eef4ff", marginBottom: 4, letterSpacing: "-0.3px" }}>Team Availability Heatmap</div>
+              <p style={{ fontSize: 14, color: "#8ba4cc", marginBottom: 16, lineHeight: 1.65 }}>See when the most team members are in work hours across the entire week. Darker green = more people available. Click any cell to set as your meeting hour.</p>
+              <div style={{ overflowX: "auto" }}>
+                <div style={{ display: "flex", minWidth: 580 }}>
+                  <div style={{ width: 44, flexShrink: 0 }} />
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <div key={h} style={{ flex: 1, fontSize: 8, color: "#4a6080", textAlign: "center", fontFamily: "'Space Mono', monospace" }}>
+                      {h % 4 === 0 ? fmtH(h, u24) : ""}
+                    </div>
+                  ))}
+                </div>
+                {getHeatmap().map(({ day, hours, isWeekend }) => (
+                  <div key={day} style={{ display: "flex", minWidth: 580, marginBottom: 2, alignItems: "center" }}>
+                    <div style={{ width: 44, flexShrink: 0, fontSize: 12, color: isWeekend ? "#4a6080" : "#8ba4cc", fontWeight: 700 }}>{day}</div>
+                    {hours.map((count, h) => {
+                      const maxC = Math.max(zones.length, 1);
+                      const ratio = count / maxC;
+                      const bg = count === 0 ? "rgba(255,255,255,0.02)" :
+                        ratio >= 1 ? "rgba(0,200,100,0.55)" :
+                        ratio >= 0.5 ? "rgba(0,200,100,0.3)" :
+                        "rgba(255,180,0,0.2)";
+                      return (
+                        <div key={h} style={{ flex: 1, height: 28, background: bg, borderRadius: 3, margin: "0 1px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: count > 0 ? "rgba(255,255,255,0.7)" : "transparent", cursor: "pointer", transition: "opacity 0.15s" }}
+                          onClick={() => { setMHour(h); setTab("planner"); setToast({ message: `Meeting planner set to ${fmtH(h, u24)}. Check the summary below.`, emoji: "📅" }); }}
+                          title={`${day} ${fmtH(h, u24)}: ${count}/${zones.length} available — click to use in planner`}
+                          onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
+                          onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
+                          {count > 0 ? count : ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
+                {[["rgba(0,200,100,0.55)", "All available"], ["rgba(0,200,100,0.3)", "Most available"], ["rgba(255,180,0,0.2)", "Some available"], ["rgba(255,255,255,0.02)", "None"]].map(([bg, l]) => (
+                  <div key={l} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <div style={{ width: 14, height: 14, borderRadius: 3, background: bg }} />
+                    <span style={{ fontSize: 11, color: "#4a6080" }}>{l}</span>
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: 12, color: "#4a6080", marginTop: 10 }}>💡 Click any green cell to instantly set that time in the Meeting Planner. Set custom hours per city using the ⚙️ icon on clock cards.</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── DISCORD TIMESTAMPS TAB ── */}
+        {tab === "discord" && (
+          <div className="fade-in">
+            <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18, marginBottom: 14 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#eef4ff", marginBottom: 4, letterSpacing: "-0.3px" }}>Discord Timestamp Generator</div>
+              <p style={{ fontSize: 14, color: "#8ba4cc", marginBottom: 16, lineHeight: 1.65 }}>Generate timestamps that automatically show in every Discord user's local time. Perfect for game events, stream times, and server announcements. Paste directly into any Discord message.</p>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 6, fontWeight: 600 }}>Select date and time for your event</div>
+                <input type="datetime-local" value={discordTime} onChange={e => setDiscordTime(e.target.value)} className="input-field" style={{ fontSize: 14 }} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 8 }}>
+                {[
+                  { format: "t", label: "Short Time", example: "9:01 PM", desc: "Great for quick time references" },
+                  { format: "T", label: "Long Time", example: "9:01:00 PM", desc: "When seconds matter" },
+                  { format: "d", label: "Short Date", example: "20/04/2024", desc: "For date-only references" },
+                  { format: "D", label: "Long Date", example: "20 April 2024", desc: "Formal announcements" },
+                  { format: "f", label: "Date and Time", example: "20 April 2024 9:01 PM", desc: "Most common choice" },
+                  { format: "F", label: "Full Date and Time", example: "Tuesday, 20 April 2024", desc: "For important events" },
+                  { format: "R", label: "Relative", example: "in 2 hours / 3 days ago", desc: "Live countdown — updates automatically!" },
+                ].map(({ format, label, example, desc }) => {
+                  const code = generateDiscord(format);
+                  const key = `discord_${format}`;
                   return (
-                    <>
-                      {workW.length > 0 && <div>✅ <strong>Work hour overlap:</strong> {workW.map(w => formatTimeShort(w.h, use24)).join(", ")} ({selectedZones[0]?.name})</div>}
-                      {awakeW.length > 0 && <div>⚠️ <strong>Awake (outside work):</strong> {awakeW.map(w => formatTimeShort(w.h, use24)).join(", ")}</div>}
-                    </>
+                    <div key={format} style={{ background: "#111f3d", borderRadius: 10, padding: "12px 14px", border: "1px solid var(--border2)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#eef4ff" }}>{label}</span>
+                        {format === "R" && <span style={{ fontSize: 10, color: "#00c864", background: "rgba(0,200,100,0.12)", padding: "2px 6px", borderRadius: 20, fontWeight: 700 }}>Live</span>}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 8 }}>{desc} · e.g. {example}</div>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#00c8ff", background: "#060d1f", padding: "8px 10px", borderRadius: 6, marginBottom: 8, wordBreak: "break-all" }}>{code}</div>
+                      <button onClick={() => copy(code, key, `"${label}" timestamp copied! Paste it into Discord.`)} className="action-btn" style={{ fontSize: 11, padding: "5px 12px" }}>
+                        {copiedKey === key ? "✓ Copied!" : "Copy"}
+                      </button>
+                    </div>
                   );
-                })()}
+                })}
+              </div>
+              <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--bg3)", borderRadius: 10, border: "1px solid var(--border2)" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>How to use in Discord</p>
+                <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.7 }}>Copy any code above and paste it directly into a Discord message or announcement. Every viewer automatically sees it in their own local timezone — no conversion needed from your viewers.</p>
+                <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 6 }}>Works in: servers, DMs, announcements, bots, and embeds.</p>
+              </div>
+
+              {/* VPN affiliate — streaming/gaming audience */}
+              <div style={{ marginTop: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>🛡️</span>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 2px" }}>Streaming or gaming internationally?</p>
+                  <p style={{ fontSize: 12, color: "var(--text2)", margin: 0 }}>A VPN keeps your connection stable and secure across borders. NordVPN and ExpressVPN are trusted by millions of streamers worldwide.</p>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap" }}>
+                  <a href="https://nordvpn.com" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(62,133,251,0.15)", border: "1px solid rgba(62,133,251,0.3)", color: "#6ba3ff", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>NordVPN →</a>
+                  <a href="https://expressvpn.com" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(218,62,42,0.1)", border: "1px solid rgba(218,62,42,0.25)", color: "#ff7a6b", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>ExpressVPN →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── RECURRING MEETING TAB ── */}
+        {tab === "recurring" && (
+          <div className="fade-in">
+            {zones.length < 2 && (
+              <div className="nudge-bar">
+                <span>💡</span>
+                <span>Add at least 2 cities on the World Clock tab to check recurring meetings.</span>
+                <button onClick={() => setTab("clock")} className="action-btn">Add cities →</button>
+              </div>
+            )}
+            <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#eef4ff", marginBottom: 4, letterSpacing: "-0.3px" }}>Recurring Meeting DST Checker</div>
+              <p style={{ fontSize: 14, color: "#8ba4cc", marginBottom: 16, lineHeight: 1.65 }}>See exactly how Daylight Saving Time shifts your weekly meeting throughout the year. If the time changes in any city, you'll see it highlighted here — so there are no surprises.</p>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 6, fontWeight: 600 }}>Your recurring meeting time in {zones[0]?.name || "first city"}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <input type="range" min="0" max="23" value={mHour} onChange={e => setMHour(+e.target.value)} style={{ accentColor: "#00c8ff", width: 200 }} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, color: "#00c8ff", fontWeight: 700 }}>{fmtH(mHour, u24)} every week</span>
+                </div>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 3px", minWidth: 480 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", fontSize: 11, color: "#4a6080", padding: "4px 8px", fontWeight: 700 }}>Month</th>
+                      {zones.map(z => <th key={z.name} style={{ textAlign: "center", fontSize: 11, color: "#4a6080", padding: "4px 8px", fontWeight: 700 }}>{z.flag} {z.name}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {checkRecurring().map(({ month, times }, ri) => {
+                      const prevTimes = ri > 0 ? checkRecurring()[ri - 1].times : null;
+                      const hasDSTChange = prevTimes && times.some((t, i) => t.hour !== prevTimes[i].hour);
+                      return (
+                        <tr key={month} style={{ background: hasDSTChange ? "rgba(255,180,0,0.05)" : "transparent" }}>
+                          <td style={{ padding: "7px 8px", fontSize: 13, fontWeight: 700, color: "#8ba4cc" }}>
+                            {month}
+                            {hasDSTChange && <span style={{ marginLeft: 6, fontSize: 10, color: "#ffb400", fontWeight: 700 }}>DST ⚡</span>}
+                          </td>
+                          {times.map(({ city, flag, hour, si }) => (
+                            <td key={city} style={{ textAlign: "center", padding: "7px 8px" }}>
+                              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: si.color, fontWeight: 700 }}>{fmtH(hour, u24)}</span>
+                              <span style={{ marginLeft: 4, fontSize: 11 }}>{si.status === "work" ? "✅" : si.status === "awake" ? "⚠️" : "😴"}</span>
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ marginTop: 12, padding: "10px 14px", background: "#111f3d", borderRadius: 8, fontSize: 12, color: "#8ba4cc", lineHeight: 1.7 }}>
+                <span style={{ color: "#ffb400", fontWeight: 700 }}>⚡ DST</span> rows show months where clocks change in one or more cities. ✅ Work hours · ⚠️ Awake but outside work hours · 😴 Sleeping
               </div>
             </div>
           </div>
         )}
 
         {/* ── CONVERTER TAB ── */}
-        {activeTab === "converter" && (
+        {tab === "converter" && (
           <div className="fade-in">
-            <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text2)", marginBottom: 16 }}>Convert a specific time across all your zones</div>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 4 }}>Date</div>
-                  <input type="date" value={meetingDate} onChange={e => setMeetingDate(e.target.value)} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: 13, outline: "none" }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 4 }}>Hour</div>
-                  <select value={meetingHour} onChange={e => setMeetingHour(+e.target.value)} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: 13, outline: "none" }}>
-                    {Array.from({ length: 24 }, (_, h) => (
-                      <option key={h} value={h}>{formatTimeShort(h, use24)}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 4 }}>Base city</div>
-                  <select value={selectedZones[0]?.name || ""} onChange={() => { }} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: 13, outline: "none" }}>
-                    {selectedZones.map(z => <option key={z.name} value={z.name}>{z.name}</option>)}
-                  </select>
-                </div>
+            <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18, marginBottom: 14 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#eef4ff", marginBottom: 14, letterSpacing: "-0.3px" }}>Time Converter</div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 6, fontWeight: 600 }}>What time in {zones[0]?.name || "first city"}?</div>
+                <select value={mHour} onChange={e => setMHour(+e.target.value)} className="input-field" style={{ fontSize: 14 }}>
+                  {Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{fmtH(h, u24)}</option>)}
+                </select>
               </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-                {selectedZones.map((zone, i) => {
-                  const baseZone = selectedZones[0];
-                  const baseLocal = getTimeInZone(baseZone.tz, now).getHours();
-                  const targetLocal = getTimeInZone(zone.tz, now).getHours();
-                  const diff = targetLocal - baseLocal;
-                  const convertedH = (meetingHour + diff + 48) % 24;
-                  const crossDay = meetingHour + diff >= 24 ? "+1 day" : meetingHour + diff < 0 ? "-1 day" : "";
-                  const status = getHourStatus(convertedH);
-                  const statusColor = status === "work" ? "var(--green)" : status === "awake" ? "var(--yellow)" : "var(--red)";
-
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, marginBottom: 16 }}>
+                {zones.map((zone, i) => {
+                  const off = getZoneTime(zone.tz, now).getHours() - now.getHours();
+                  const lh = (mHour + off + 48) % 24;
+                  const crossDay = mHour + off >= 24 ? "+1 day" : mHour + off < 0 ? "-1 day" : "";
+                  const ws = customHours[zone.name] || { start: 9, end: 18 };
+                  const si = getStatusInfo(lh, ws);
+                  const holiday = checkHoliday(zone.tz, now);
                   return (
-                    <div key={i} style={{ background: "var(--bg3)", border: "1px solid var(--border2)", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 24 }}>{zone.flag}</span>
-                      <div>
-                        <div style={{ fontSize: 12, color: "var(--text2)", marginBottom: 2 }}>{zone.name}</div>
-                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: "var(--cyan)" }}>
-                          {formatTimeShort(convertedH, use24)}
-                          {crossDay && <span style={{ fontSize: 10, color: "var(--text3)", marginLeft: 4 }}>{crossDay}</span>}
-                        </div>
-                        <div style={{ fontSize: 11, color: statusColor, marginTop: 2 }}>
-                          {status === "work" ? "✅ Work hours" : status === "awake" ? "⚠️ Awake" : "😴 Sleeping"}
+                    <div key={i} style={{ background: "#111f3d", border: "1px solid var(--border2)", borderRadius: 10, padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                        <span style={{ fontSize: 20 }}>{zone.flag}</span>
+                        <div>
+                          <div style={{ fontSize: 12, color: "#8ba4cc", fontWeight: 600 }}>{zone.name}</div>
+                          <div style={{ fontSize: 10, color: "#4a6080" }}>{getOffset(zone.tz)}</div>
                         </div>
                       </div>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 20, fontWeight: 700, color: "#00c8ff", marginBottom: 3 }}>
+                        {fmtH(lh, u24)}{crossDay && <span style={{ fontSize: 10, color: "#4a6080", marginLeft: 5 }}>{crossDay}</span>}
+                      </div>
+                      <div style={{ fontSize: 12, color: si.color, fontWeight: 600 }}>{si.status === "work" ? "✅ Working" : si.status === "awake" ? "⚠️ Awake" : "😴 Sleeping"}</div>
+                      {holiday && <div style={{ fontSize: 11, color: "#ffb400", marginTop: 2 }}>🎉 {holiday.n}</div>}
                     </div>
                   );
                 })}
               </div>
-            </div>
-
-            {/* Quick copy */}
-            <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text2)", marginBottom: 10 }}>📋 Copy-ready time string</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "var(--cyan)", background: "var(--bg3)", padding: "10px 14px", borderRadius: 8, lineHeight: 1.8 }}>
-                {selectedZones.map(zone => {
-                  const baseLocal = getTimeInZone(selectedZones[0].tz, now).getHours();
-                  const targetLocal = getTimeInZone(zone.tz, now).getHours();
-                  const diff = targetLocal - baseLocal;
-                  const convertedH = (meetingHour + diff + 48) % 24;
-                  return `${formatTimeShort(convertedH, use24)} ${zone.name}`;
-                }).join(" / ")}
+              <div style={{ background: "#111f3d", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#8ba4cc", marginBottom: 8 }}>Paste-ready string for Slack / email</div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#00c8ff", background: "#060d1f", padding: "10px 12px", borderRadius: 8, lineHeight: 1.9, wordBreak: "break-all", marginBottom: 8 }}>
+                  {zones.length > 0 ? zones.map(zone => { const o = getZoneTime(zone.tz, now).getHours() - now.getHours(); const h = (mHour + o + 48) % 24; return `${fmtH(h, u24)} ${zone.name}`; }).join(" / ") : "Add cities to see conversion"}
+                </div>
+                <button onClick={() => { if (!zones.length) return; const s = zones.map(z => { const o = getZoneTime(z.tz, now).getHours() - now.getHours(); const h = (mHour + o + 48) % 24; return `${fmtH(h, u24)} ${z.name}`; }).join(" / "); copy(s, "converterstr", "Time string copied! Paste it into Slack or email."); }} className="action-btn">
+                  {copiedKey === "converterstr" ? "✓ Copied!" : "Copy"}
+                </button>
               </div>
-              <button onClick={() => {
-                const str = selectedZones.map(zone => {
-                  const baseLocal = getTimeInZone(selectedZones[0].tz, now).getHours();
-                  const diff = getTimeInZone(zone.tz, now).getHours() - baseLocal;
-                  const h = (meetingHour + diff + 48) % 24;
-                  return `${formatTimeShort(h, use24)} ${zone.name}`;
-                }).join(" / ");
-                navigator.clipboard.writeText(str);
-                setCopied(true); setTimeout(() => setCopied(false), 2000);
-              }} style={{ marginTop: 10, padding: "6px 16px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--text2)", fontSize: 12 }}>
-                {copied ? "✓ Copied!" : "Copy to clipboard"}
-              </button>
             </div>
           </div>
         )}
 
         {/* ── FAQ ── */}
-        <div style={{ marginTop: 48 }}>
+        <div style={{ marginTop: 56 }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, letterSpacing: "-0.5px" }}>
-            Frequently Asked <span style={{ color: "var(--cyan)" }}>Questions</span>
+            Frequently Asked <span style={{ color: "#00c8ff" }}>Questions</span>
           </h2>
-          <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)", padding: "0 20px" }}>
+          <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: "0 20px" }}>
             {FAQ.map((item, i) => (
               <div key={i} className="faq-item">
                 <div className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                   <span>{item.q}</span>
-                  <span style={{ color: "var(--cyan)", fontSize: 18, flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "none", transition: "transform 0.2s" }}>+</span>
+                  <span style={{ color: "#00c8ff", fontSize: 20, flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "none", transition: "transform 0.2s" }}>+</span>
                 </div>
                 {openFaq === i && <div className="faq-a fade-in">{item.a}</div>}
               </div>
@@ -605,23 +1131,27 @@ export default function WorldTimezone() {
         </div>
 
         {/* ── About / SEO ── */}
-        <div style={{ marginTop: 48, padding: 24, background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "var(--radius)" }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>About <span style={{ color: "var(--cyan)" }}>ZoneAtlas</span></h2>
-          <p style={{ fontSize: 16, color: "var(--text2)", lineHeight: 1.8, marginBottom: 14 }}>
-            ZoneAtlas is a free world time zone converter and international meeting scheduler designed for remote teams, frequent travelers, and global professionals. Unlike other timezone tools, ZoneAtlas shows you <strong style={{ color: "var(--text)" }}>sleep hours</strong> alongside work hours, so you never accidentally schedule a call at 3am for your colleague in Tokyo again.
-          </p>
-          <p style={{ fontSize: 16, color: "var(--text2)", lineHeight: 1.8, marginBottom: 14 }}>
-            The <strong style={{ color: "var(--text)" }}>Meeting Planner</strong> automatically highlights overlapping work hours across all your selected cities, calculates the best meeting windows, and generates a copy-ready time string you can paste directly into your calendar invite or Slack message.
-          </p>
-          <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.8 }}>
-            All time conversions are powered by your browser's live timezone database, ensuring <strong style={{ color: "var(--text)" }}>automatic Daylight Saving Time accuracy</strong> for all 40 countries that observe DST. No manual updates needed.
-          </p>
+        <div style={{ marginTop: 40, padding: 24, background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.5px" }}>About <span style={{ color: "#00c8ff" }}>ZoneAtlas</span></h2>
+          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>ZoneAtlas is the most complete free world timezone tool built for remote teams, digital nomads, gamers, streamers, and global professionals. Add up to 8 cities and instantly see who is working, awake, or sleeping — so you never schedule a 3am call again.</p>
+          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>Features include live world clocks with public holiday awareness, a Meeting Planner with conflict detection and calendar export, a Team Availability Heatmap, a Discord Timestamp Generator for all 7 Discord time formats, a Recurring Meeting DST Checker, saved team profiles, and an embeddable widget for Notion pages and websites.</p>
+          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8 }}>All conversions use your browser's live timezone database for automatic Daylight Saving Time accuracy. No signup required. No data stored on our servers. Free forever.</p>
+
+          {/* VPN affiliate — digital nomads */}
+          <div style={{ marginTop: 16, padding: "12px 14px", background: "rgba(0,200,255,0.04)", border: "1px solid rgba(0,200,255,0.12)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 16 }}>🌐</span>
+            <span style={{ fontSize: 13, color: "var(--text2)", flex: 1 }}>Working remotely or traveling internationally? Protect your connection with a trusted VPN.</span>
+            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+              <a href="https://nordvpn.com" target="_blank" rel="noopener noreferrer" style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(62,133,251,0.12)", border: "1px solid rgba(62,133,251,0.25)", color: "#6ba3ff", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>NordVPN</a>
+              <a href="https://expressvpn.com" target="_blank" rel="noopener noreferrer" style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(218,62,42,0.08)", border: "1px solid rgba(218,62,42,0.2)", color: "#ff7a6b", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>ExpressVPN</a>
+            </div>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--border2)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 13, color: "var(--text3)" }}>ZoneAtlas · Free World Time Zone Converter</span>
-          <span style={{ fontSize: 11, color: "var(--text3)" }}>Live · DST-aware · No signup required</span>
+        {/* ── Privacy data note ── */}
+        <div style={{ marginTop: 20, padding: "12px 16px", background: "rgba(0,200,100,0.04)", border: "1px solid rgba(0,200,100,0.15)", borderRadius: 10, fontSize: 13, color: "#4a6080", display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 16 }}>🔒</span>
+          <span>Your saved teams are stored on <strong style={{ color: "#8ba4cc" }}>your device only</strong> — never on our servers. No account required. No personal data collected.</span>
         </div>
       </div>
     </div>
