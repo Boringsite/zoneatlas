@@ -773,6 +773,9 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
   const [isReturning, setIsReturning] = useState(false);
   const [onboardStep, setOnboardStep] = useState(0);
   const [showShareNudge, setShowShareNudge] = useState(false);
+  const [geoSearch, setGeoSearch] = useState([]);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState(false);
   const [lightMode, setLightMode] = useState(() => localStorage.getItem("za_theme") === "light");
   const visitCount = useRef(0);
 
@@ -890,6 +893,72 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
 
   const removeZone = (i) => {
     setZones(p => p.filter((_, j) => j !== i));
+  };
+
+  // GeoNames API search — 40,000+ cities globally
+  const searchGeoNames = async (query) => {
+    if (query.length < 3) { setGeoSearch([]); return; }
+    setGeoLoading(true);
+    setGeoError(false);
+    try {
+      const res = await fetch(
+        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(query)}&maxRows=12&featureClass=P&orderby=population&username=docvault`
+      );
+      const data = await res.json();
+      if (data.geonames) {
+        const results = data.geonames
+          .filter(g => g.timezone && g.timezone.timeZoneId)
+          .map(g => ({
+            name: g.name,
+            tz: g.timezone.timeZoneId,
+            flag: countryToFlag(g.countryCode),
+            region: getRegion(g.countryCode),
+            country: g.countryCode,
+            population: g.population,
+            adminName: g.adminName1,
+          }));
+        setGeoSearch(results);
+      }
+    } catch (e) {
+      setGeoError(true);
+    }
+    setGeoLoading(false);
+  };
+
+  const countryToFlag = (code) => {
+    if (!code) return "🌍";
+    const flags = {
+      US:"🇺🇸",CA:"🇨🇦",GB:"🇬🇧",AU:"🇦🇺",NZ:"🇳🇿",DE:"🇩🇪",FR:"🇫🇷",IT:"🇮🇹",ES:"🇪🇸",PT:"🇵🇹",
+      NL:"🇳🇱",BE:"🇧🇪",CH:"🇨🇭",AT:"🇦🇹",SE:"🇸🇪",NO:"🇳🇴",DK:"🇩🇰",FI:"🇫🇮",IE:"🇮🇪",PL:"🇵🇱",
+      CZ:"🇨🇿",HU:"🇭🇺",RO:"🇷🇴",BG:"🇧🇬",HR:"🇭🇷",RS:"🇷🇸",SK:"🇸🇰",SI:"🇸🇮",GR:"🇬🇷",UA:"🇺🇦",
+      BY:"🇧🇾",MD:"🇲🇩",RU:"🇷🇺",TR:"🇹🇷",JP:"🇯🇵",KR:"🇰🇷",CN:"🇨🇳",TW:"🇹🇼",HK:"🇭🇰",MO:"🇲🇴",
+      IN:"🇮🇳",PK:"🇵🇰",BD:"🇧🇩",LK:"🇱🇰",NP:"🇳🇵",AF:"🇦🇫",SG:"🇸🇬",MY:"🇲🇾",ID:"🇮🇩",PH:"🇵🇭",
+      TH:"🇹🇭",VN:"🇻🇳",MM:"🇲🇲",KH:"🇰🇭",LA:"🇱🇦",BN:"🇧🇳",TL:"🇹🇱",MX:"🇲🇽",BR:"🇧🇷",AR:"🇦🇷",
+      CL:"🇨🇱",CO:"🇨🇴",PE:"🇵🇪",VE:"🇻🇪",EC:"🇪🇨",BO:"🇧🇴",UY:"🇺🇾",PY:"🇵🇾",GY:"🇬🇾",SR:"🇸🇷",
+      AE:"🇦🇪",SA:"🇸🇦",QA:"🇶🇦",KW:"🇰🇼",BH:"🇧🇭",OM:"🇴🇲",YE:"🇾🇪",IL:"🇮🇱",JO:"🇯🇴",LB:"🇱🇧",
+      SY:"🇸🇾",IQ:"🇮🇶",IR:"🇮🇷",CY:"🇨🇾",EG:"🇪🇬",MA:"🇲🇦",DZ:"🇩🇿",TN:"🇹🇳",LY:"🇱🇾",SD:"🇸🇩",
+      NG:"🇳🇬",GH:"🇬🇭",SN:"🇸🇳",CI:"🇨🇮",CM:"🇨🇲",KE:"🇰🇪",ET:"🇪🇹",TZ:"🇹🇿",UG:"🇺🇬",RW:"🇷🇼",
+      ZA:"🇿🇦",ZW:"🇿🇼",ZM:"🇿🇲",MZ:"🇲🇿",BW:"🇧🇼",NA:"🇳🇦",MW:"🇲🇼",MG:"🇲🇬",MU:"🇲🇺",AO:"🇦🇴",
+      GE:"🇬🇪",AZ:"🇦🇿",AM:"🇦🇲",KZ:"🇰🇿",UZ:"🇺🇿",TM:"🇹🇲",KG:"🇰🇬",TJ:"🇹🇯",MN:"🇲🇳",KP:"🇰🇵",
+      FJ:"🇫🇯",PG:"🇵🇬",WS:"🇼🇸",TO:"🇹🇴",SB:"🇸🇧",VU:"🇻🇺",IS:"🇮🇸",LU:"🇱🇺",MC:"🇲🇨",AD:"🇦🇩",
+      LT:"🇱🇹",LV:"🇱🇻",EE:"🇪🇪",AL:"🇦🇱",MK:"🇲🇰",ME:"🇲🇪",BA:"🇧🇦",GT:"🇬🇹",SV:"🇸🇻",HN:"🇭🇳",
+      NI:"🇳🇮",CR:"🇨🇷",PA:"🇵🇦",CU:"🇨🇺",JM:"🇯🇲",DO:"🇩🇴",HT:"🇭🇹",PR:"🇵🇷",TT:"🇹🇹",BB:"🇧🇧",
+    };
+    return flags[code] || "🌍";
+  };
+
+  const getRegion = (code) => {
+    const americas = ["US","CA","MX","BR","AR","CL","CO","PE","VE","EC","BO","UY","PY","GY","SR","GT","SV","HN","NI","CR","PA","CU","JM","DO","HT","PR","TT","BB"];
+    const europe = ["GB","DE","FR","IT","ES","PT","NL","BE","CH","AT","SE","NO","DK","FI","IE","PL","CZ","HU","RO","BG","HR","RS","SK","SI","GR","UA","BY","MD","RU","TR","LT","LV","EE","AL","MK","ME","BA","IS","LU","MC","AD"];
+    const middleEast = ["AE","SA","QA","KW","BH","OM","YE","IL","JO","LB","SY","IQ","IR","CY","AF"];
+    const africa = ["EG","MA","DZ","TN","LY","SD","NG","GH","SN","CI","CM","KE","ET","TZ","UG","RW","ZA","ZW","ZM","MZ","BW","NA","MW","MG","MU","AO"];
+    const asia = ["JP","KR","CN","TW","HK","MO","IN","PK","BD","LK","NP","SG","MY","ID","PH","TH","VN","MM","KH","LA","BN","TL","GE","AZ","AM","KZ","UZ","TM","KG","TJ","MN","KP"];
+    if (americas.includes(code)) return "Americas";
+    if (europe.includes(code)) return "Europe";
+    if (middleEast.includes(code)) return "Middle East";
+    if (africa.includes(code)) return "Africa";
+    if (asia.includes(code)) return "Asia";
+    return "Pacific";
   };
 
   const copy = (text, key, successMsg) => {
@@ -1287,21 +1356,65 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                   {showSearch && (
                     <div className="fade-in" style={{ position: "absolute", top: "105%", left: 0, right: 0, zIndex: 50, background: "#0c1730", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", minWidth: 240 }}>
                       <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border2)" }}>
-                        <input autoFocus value={search} onChange={e => setSearch(e.target.value)} placeholder="Search any city..." style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: "#eef4ff", fontSize: 14, fontFamily: "'Plus Jakarta Sans', system-ui" }} />
+                        <input autoFocus value={search} onChange={e => {
+                          setSearch(e.target.value);
+                          searchGeoNames(e.target.value);
+                        }} placeholder="Search any city in the world..." style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: "var(--text)", fontSize: 14, fontFamily: "'Plus Jakarta Sans', system-ui" }} />
                       </div>
                       <div style={{ display: "flex", gap: 4, padding: "6px 10px", flexWrap: "wrap", borderBottom: "1px solid var(--border2)" }}>
                         {REGIONS.map(r => (
                           <button key={r} className={`pill-btn ${regionFilter === r ? "active" : ""}`} style={{ fontSize: 11, padding: "3px 8px" }} onClick={() => setRegionFilter(r)}>{r}</button>
                         ))}
                       </div>
-                      <div style={{ maxHeight: 240, overflowY: "auto" }}>
-                        {filtered.slice(0, 25).map(c => (
-                          <div key={c.name} className="search-item" onClick={() => addZone(c)}>
-                            <span>{c.flag}</span><span style={{ flex: 1 }}>{c.name}</span>
-                            <span style={{ color: "#4a6080", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{getOffset(c.tz)}</span>
-                          </div>
-                        ))}
-                        {filtered.length === 0 && <div style={{ padding: "16px", color: "#4a6080", fontSize: 13, textAlign: "center" }}>No cities found</div>}
+                      <div style={{ maxHeight: 260, overflowY: "auto" }}>
+                        {geoLoading && (
+                          <div style={{ padding: "12px 14px", fontSize: 12, color: "var(--text3)", textAlign: "center" }}>🔍 Searching 40,000+ cities...</div>
+                        )}
+                        {geoError && (
+                          <div style={{ padding: "12px 14px", fontSize: 12, color: "var(--yellow)", textAlign: "center" }}>⚠️ Search unavailable — showing local results</div>
+                        )}
+                        {search.length >= 3 && !geoLoading && geoSearch.length > 0 ? (
+                          <>
+                            <div style={{ padding: "4px 14px", fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              🌍 Global search results
+                            </div>
+                            {geoSearch.map((c, i) => (
+                              <div key={i} className="search-item" onClick={() => addZone(c)}>
+                                <span>{c.flag}</span>
+                                <span style={{ flex: 1 }}>
+                                  {c.name}
+                                  {c.adminName && <span style={{ fontSize: 11, color: "var(--text3)", marginLeft: 4 }}>{c.adminName}</span>}
+                                </span>
+                                <span style={{ color: "var(--text3)", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{getOffset(c.tz)}</span>
+                              </div>
+                            ))}
+                          </>
+                        ) : search.length >= 3 && !geoLoading ? (
+                          <>
+                            <div style={{ padding: "4px 14px", fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Local results
+                            </div>
+                            {filtered.slice(0, 25).map(c => (
+                              <div key={c.name} className="search-item" onClick={() => addZone(c)}>
+                                <span>{c.flag}</span><span style={{ flex: 1 }}>{c.name}</span>
+                                <span style={{ color: "var(--text3)", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{getOffset(c.tz)}</span>
+                              </div>
+                            ))}
+                            {filtered.length === 0 && <div style={{ padding: "16px", color: "var(--text3)", fontSize: 13, textAlign: "center" }}>No cities found</div>}
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ padding: "4px 14px", fontSize: 10, color: "var(--text3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Popular cities
+                            </div>
+                            {filtered.slice(0, 20).map(c => (
+                              <div key={c.name} className="search-item" onClick={() => addZone(c)}>
+                                <span>{c.flag}</span><span style={{ flex: 1 }}>{c.name}</span>
+                                <span style={{ color: "var(--text3)", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{getOffset(c.tz)}</span>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
