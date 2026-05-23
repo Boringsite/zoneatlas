@@ -902,10 +902,17 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
     setGeoError(false);
     try {
       const res = await fetch(
-        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(query)}&maxRows=12&featureClass=P&orderby=population&username=docvault`
+        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(query)}&maxRows=15&featureClass=P&orderby=population&style=SHORT&username=docvault`
       );
       const data = await res.json();
-      if (data.geonames) {
+      // Check for GeoNames API error response
+      if (data.status) {
+        console.warn("GeoNames API:", data.status.message);
+        setGeoError(true);
+        setGeoLoading(false);
+        return;
+      }
+      if (data.geonames && data.geonames.length > 0) {
         const results = data.geonames
           .filter(g => g.timezone && g.timezone.timeZoneId)
           .map(g => ({
@@ -918,8 +925,12 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
             adminName: g.adminName1,
           }));
         setGeoSearch(results);
+      } else {
+        // No results from API — fall back to local
+        setGeoSearch([]);
       }
     } catch (e) {
+      console.warn("GeoNames fetch error:", e);
       setGeoError(true);
     }
     setGeoLoading(false);
