@@ -707,14 +707,14 @@ function checkHoliday(tz, now = new Date()) {
 }
 
 const FAQ = [
-  { q: "What is ZoneAtlas?", a: "ZoneAtlas is the world's most complete free timezone tool. It shows live world clocks, a meeting planner, team availability heatmap, Discord timestamp generator, and a recurring meeting DST checker — all in one place with no signup required." },
+  { q: "What is GlobeOnTime?", a: "GlobeOnTime is the world's most complete free timezone tool. It shows live world clocks, a meeting planner, team availability heatmap, Discord timestamp generator, and a recurring meeting DST checker — all in one place with no signup required." },
   { q: "How does the sleep overlay work?", a: "The 24-hour timeline color codes each hour: green means work hours (9am-6pm), amber means awake but outside work hours, dark means sleeping. You can set custom work hours for each city using the settings icon on each clock card." },
-  { q: "Does ZoneAtlas handle Daylight Saving Time?", a: "Yes. All conversions use your browser's live timezone database which automatically updates for DST transitions in every country. The Recurring Meeting tab shows you how your weekly slot shifts throughout the year." },
+  { q: "Does GlobeOnTime handle Daylight Saving Time?", a: "Yes. All conversions use your browser's live timezone database which automatically updates for DST transitions in every country. The Recurring Meeting tab shows you how your weekly slot shifts throughout the year." },
   { q: "How do saved team profiles work?", a: "Save your team's cities as a named profile — like 'My Dev Team'. One click reloads everything instantly. Profiles are saved in your browser and never require an account. Your data never leaves your device." },
   { q: "What are Discord timestamps?", a: "Discord timestamps are codes like <t:1234567890:F> that automatically show in every Discord user's local time. Paste them in any server, DM, or announcement and they display correctly for everyone." },
   { q: "What is the Team Availability Heatmap?", a: "The heatmap shows every hour of the week color-coded by how many team members are in work hours. Green means everyone is available. It instantly reveals the best slots for meetings without back-and-forth emails." },
-  { q: "Is my data safe?", a: "ZoneAtlas collects no personal information. Saved team profiles are stored only in your browser's local storage — they never touch our servers. There is no account, no email required, and nothing to steal." },
-  { q: "Is ZoneAtlas really free?", a: "Yes, completely free forever. No signup, no subscription. ZoneAtlas is supported by non-intrusive advertising placed only in content areas — never inside the tool itself." },
+  { q: "Is my data safe?", a: "GlobeOnTime collects no personal information. Saved team profiles are stored only in your browser's local storage — they never touch our servers. There is no account, no email required, and nothing to steal." },
+  { q: "Is GlobeOnTime really free?", a: "Yes, completely free forever. No signup, no subscription. GlobeOnTime is supported by non-intrusive advertising placed only in content areas — never inside the tool itself." },
 ];
 
 // ── Toast Component ───────────────────────────────────────────────────────────
@@ -1013,7 +1013,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
       const icon = si.status === "work" ? "✅" : si.status === "awake" ? "⚠️" : "😴";
       return `${z.flag} ${z.name}: ${fmtH(lh, u24)} ${icon}`;
     });
-    return `📅 Meeting time:\n${lines.join("\n")}\n\nScheduled with ZoneAtlas — zoneatlas.vercel.app`;
+    return `📅 Meeting time:\n${lines.join("\n")}\n\nScheduled with GlobeOnTime — globeontime.com`;
   };
 
   const generateDiscord = (format) => `<t:${toUnix(new Date(discordTime))}:${format}>`;
@@ -1088,7 +1088,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
     return [...startMatch, ...includeMatch, ...countryMatch];
   })();
 
-  const embedCode = `<iframe src="https://zoneatlas.vercel.app?embed=1&cities=${zones.map(z => encodeURIComponent(z.name)).join(",")}" width="100%" height="200" frameborder="0" style="border-radius:12px;border:none"></iframe>`;
+  const embedCode = `<iframe src="https://globeontime.com?embed=1&cities=${zones.map(z => encodeURIComponent(z.name)).join(",")}" width="100%" height="200" frameborder="0" style="border-radius:12px;border:none"></iframe>`;
 
   const greeting = getTimeGreeting(now.getHours());
 
@@ -1169,7 +1169,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
               <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#00c8ff,#0050ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>🌐</div>
-              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1px", color: "#eef4ff" }}>Zone<span style={{ color: "#00c8ff" }}>Atlas</span></h1>
+              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-1px", color: "#eef4ff" }}>Globe<span style={{ color: "#00c8ff" }}>OnTime</span></h1>
             </div>
             {/* Dynamic greeting */}
             <p style={{ fontSize: 15, color: "#8ba4cc", fontWeight: 500 }}>
@@ -1251,8 +1251,8 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         {showShareNudge && (
           <div className="nudge-bar">
             <span style={{ fontSize: 18 }}>📤</span>
-            <span style={{ flex: 1 }}>Loving ZoneAtlas? Your teammates will thank you for sharing it.</span>
-            <button onClick={() => { copy(window.location.href, "share", "Link copied!"); setShowShareNudge(false); }} className="action-btn" style={{ flexShrink: 0 }}>Share ZoneAtlas</button>
+            <span style={{ flex: 1 }}>Loving GlobeOnTime? Your teammates will thank you for sharing it.</span>
+            <button onClick={() => { copy(window.location.href, "share", "Link copied!"); setShowShareNudge(false); }} className="action-btn" style={{ flexShrink: 0 }}>Share GlobeOnTime</button>
             <button onClick={() => setShowShareNudge(false)} style={{ color: "#4a6080", fontSize: 13, background: "none", border: "none", cursor: "pointer", padding: "0 6px" }}>✕</button>
           </div>
         )}
@@ -1865,8 +1865,8 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
 
         {/* ── About / SEO ── */}
         <div style={{ marginTop: 40, padding: 24, background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.5px" }}>About <span style={{ color: "#00c8ff" }}>ZoneAtlas</span></h2>
-          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>ZoneAtlas is the most complete free world timezone tool built for remote teams, digital nomads, gamers, streamers, and global professionals. Add up to 8 cities and instantly see who is working, awake, or sleeping — so you never schedule a 3am call again.</p>
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.5px" }}>About <span style={{ color: "#00c8ff" }}>GlobeOnTime</span></h2>
+          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>GlobeOnTime is the most complete free world timezone tool built for remote teams, digital nomads, gamers, streamers, and global professionals. Add up to 8 cities and instantly see who is working, awake, or sleeping — so you never schedule a 3am call again.</p>
           <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>Features include live world clocks with public holiday awareness, a Meeting Planner with conflict detection and calendar export, a Team Availability Heatmap, a Discord Timestamp Generator for all 7 Discord time formats, a Recurring Meeting DST Checker, saved team profiles, and an embeddable widget for Notion pages and websites.</p>
           <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8 }}>All conversions use your browser's live timezone database for automatic Daylight Saving Time accuracy. No signup required. No data stored on our servers. Free forever.</p>
 
