@@ -746,7 +746,7 @@ function toUnix(date) { return Math.floor(date.getTime() / 1000); }
 function getTimeGreeting(h) {
   if (h >= 5 && h < 12) return { text: "Good morning!", sub: "The world is waking up. Add your team's cities to see who's at their desk.", emoji: "🌅" };
   if (h >= 12 && h < 17) return { text: "Good afternoon!", sub: "Peak hours for most of the world. Let's see who's available.", emoji: "☀️" };
-  if (h >= 17 && h < 21) return { text: "Good evening!", sub: "Europe is wrapping up — Asia Pacific is hitting their stride.", emoji: "🌆" };
+  if (h >= 17 && h < 21) return { text: "Good evening!", sub: "Europe is wrapping up, Asia Pacific is hitting their stride.", emoji: "🌆" };
   return { text: "Burning the midnight oil?", sub: "The Asia Pacific team is just getting started. You're in good company.", emoji: "🌙" };
 }
 function checkHoliday(tz, now = new Date()) {
@@ -758,14 +758,14 @@ function checkHoliday(tz, now = new Date()) {
 }
 
 const FAQ = [
-  { q: "What is GlobeOnTime?", a: "GlobeOnTime is the world's most complete free timezone tool. It shows live world clocks, a meeting planner, team availability heatmap, Discord timestamp generator, and a recurring meeting DST checker — all in one place with no signup required." },
+  { q: "What is GlobeOnTime?", a: "GlobeOnTime is the world's most complete free timezone tool. It shows live world clocks, a meeting planner, team availability heatmap, Discord timestamp generator, and a recurring meeting DST checker, all in one place with no signup required." },
   { q: "How does the sleep overlay work?", a: "The 24-hour timeline color codes each hour: green means work hours (9am-6pm), amber means awake but outside work hours, dark means sleeping. You can set custom work hours for each city using the settings icon on each clock card." },
   { q: "Does GlobeOnTime handle Daylight Saving Time?", a: "Yes. All conversions use your browser's live timezone database which automatically updates for DST transitions in every country. The Recurring Meeting tab shows you how your weekly slot shifts throughout the year." },
-  { q: "How do saved team profiles work?", a: "Save your team's cities as a named profile — like 'My Dev Team'. One click reloads everything instantly. Profiles are saved in your browser and never require an account. Your data never leaves your device." },
+  { q: "How do saved team profiles work?", a: "Save your team's cities as a named profile, like 'My Dev Team'. One click reloads everything instantly. Profiles are saved in your browser and never require an account. Your data never leaves your device." },
   { q: "What are Discord timestamps?", a: "Discord timestamps are codes like <t:1234567890:F> that automatically show in every Discord user's local time. Paste them in any server, DM, or announcement and they display correctly for everyone." },
   { q: "What is the Team Availability Heatmap?", a: "The heatmap shows every hour of the week color-coded by how many team members are in work hours. Green means everyone is available. It instantly reveals the best slots for meetings without back-and-forth emails." },
-  { q: "Is my data safe?", a: "GlobeOnTime collects no personal information. Saved team profiles are stored only in your browser's local storage — they never touch our servers. There is no account, no email required, and nothing to steal." },
-  { q: "Is GlobeOnTime really free?", a: "Yes, completely free forever. No signup, no subscription. GlobeOnTime is supported by non-intrusive advertising placed only in content areas — never inside the tool itself." },
+  { q: "Is my data safe?", a: "GlobeOnTime collects no personal information. Saved team profiles are stored only in your browser's local storage, they never touch our servers. There is no account, no email required, and nothing to steal." },
+  { q: "Is GlobeOnTime really free?", a: "Yes, completely free forever. No signup, no subscription. GlobeOnTime is supported by non-intrusive advertising placed only in content areas, never inside the tool itself." },
 ];
 
 // ── Toast Component ───────────────────────────────────────────────────────────
@@ -835,7 +835,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
     return () => clearInterval(t);
   }, []);
 
-  // Initialise — detect returning user, load last cities
+  // Initialise, detect returning user, load last cities
   useEffect(() => {
     const visits = parseInt(localStorage.getItem("za_visits") || "0") + 1;
     localStorage.setItem("za_visits", visits);
@@ -860,7 +860,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         setToast({ message: defaultProfile ? `Welcome back! Your team "${defaultProfile}" is ready.` : "Welcome back! Your last cities have been restored.", emoji: "👋" });
       }, 600);
     } else {
-      // First visit — auto-detect location from timezone
+      // First visit, auto-detect location from timezone
       try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         let match = CITIES.find(c => c.tz === tz);
@@ -894,7 +894,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         return h >= 7 && h < 22;
       });
       if (awakeZones.length > 0) {
-        setTimeout(() => setToast({ message: `Your ${awakeZones[awakeZones.length - 1].name} contact is awake right now — good time to message them!`, emoji: "👋" }), 800);
+        setTimeout(() => setToast({ message: `Your ${awakeZones[awakeZones.length - 1].name} contact is awake right now, good time to message them!`, emoji: "👋" }), 800);
       }
     }
     if (zones.length >= 3 && onboardStep < 3) {
@@ -946,7 +946,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
     setZones(p => p.filter((_, j) => j !== i));
   };
 
-  // GeoNames API search — 40,000+ cities globally
+  // GeoNames API search, 40,000+ cities globally
   const searchGeoNames = async (query) => {
     if (query.length < 3) { setGeoSearch([]); return; }
     setGeoLoading(true);
@@ -978,7 +978,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
           }));
         setGeoSearch(results);
       } else {
-        // No results from API — fall back to local
+        // No results from API, fall back to local
         setGeoSearch([]);
       }
     } catch (e) {
@@ -1065,7 +1065,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
       const icon = si.status === "work" ? "✅" : si.status === "awake" ? "⚠️" : "😴";
       return `${z.flag} ${z.name}: ${fmtH(lh, u24)} ${icon}`;
     });
-    return `📅 Meeting time:\n${lines.join("\n")}\n\nScheduled with GlobeOnTime — globeontime.com`;
+    return `📅 Meeting time:\n${lines.join("\n")}\n\nScheduled with GlobeOnTime, globeontime.com`;
   };
 
   const generateDiscord = (format) => `<t:${toUnix(new Date(discordTime))}:${format}>`;
@@ -1201,7 +1201,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         .nudge-bar{background:linear-gradient(135deg,rgba(0,200,255,0.08),rgba(0,80,255,0.08));border:1px solid rgba(0,200,255,0.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--text2);animation:fadeIn 0.4s ease}
       `}</style>
 
-      {/* Stars — dark mode only */}
+      {/* Stars, dark mode only */}
       {!lightMode && (
       <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
         {[...Array(50)].map((_, i) => (
@@ -1328,7 +1328,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                 setTimeout(() => { setActiveTooltip({ key: "tip_heatmap", text: "Darker green = more people available. Click any cell to set that as your meeting hour." }); markTooltip("tip_heatmap"); }, 400);
               }
               if (id === "discord" && !seenTooltips["tip_discord"]) {
-                setTimeout(() => { setActiveTooltip({ key: "tip_discord", text: "Paste these codes into Discord — they show in every user's local time automatically." }); markTooltip("tip_discord"); }, 400);
+                setTimeout(() => { setActiveTooltip({ key: "tip_discord", text: "Paste these codes into Discord, they show in every user's local time automatically." }); markTooltip("tip_discord"); }, 400);
               }
             }}
               title={desc}>
@@ -1346,7 +1346,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
             {/* Quick picks for onboarding */}
             {zones.length < 2 && (
               <div className="fade-in" style={{ marginBottom: 14 }}>
-                <p style={{ fontSize: 12, color: "#4a6080", marginBottom: 8, fontWeight: 600 }}>Quick add — where is your team?</p>
+                <p style={{ fontSize: 12, color: "#4a6080", marginBottom: 8, fontWeight: 600 }}>Quick add, where is your team?</p>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {QUICK_PICKS.filter(n => !zones.find(z => z.name === n)).map(name => {
                     const city = CITIES.find(c => c.name === name);
@@ -1434,7 +1434,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                           <div style={{ padding: "12px 14px", fontSize: 12, color: "var(--text3)", textAlign: "center" }}>🔍 Searching 40,000+ cities...</div>
                         )}
                         {geoError && (
-                          <div style={{ padding: "12px 14px", fontSize: 12, color: "var(--yellow)", textAlign: "center" }}>⚠️ Search unavailable — showing local results</div>
+                          <div style={{ padding: "12px 14px", fontSize: 12, color: "var(--yellow)", textAlign: "center" }}>⚠️ Search unavailable, showing local results</div>
                         )}
                         {search.length >= 3 && !geoLoading && geoSearch.length > 0 ? (
                           <>
@@ -1525,7 +1525,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                             if (isNow) bg = "rgba(0,200,255,0.4)";
                             return (
                               <div key={h} className="hour-cell" style={{ background: bg, border: isNow ? "1px solid #00c8ff" : isHov ? "1px solid rgba(0,200,255,0.3)" : "1px solid transparent", color: isNow ? "#00c8ff" : "transparent" }}
-                                onMouseEnter={() => setHoverH(h)} onMouseLeave={() => setHoverH(null)} title={`${fmtH(lh, u24)} in ${zone.name} — ${si.label}`}>
+                                onMouseEnter={() => setHoverH(h)} onMouseLeave={() => setHoverH(null)} title={`${fmtH(lh, u24)} in ${zone.name}, ${si.label}`}>
                                 {isNow ? "▼" : ""}
                               </div>
                             );
@@ -1570,7 +1570,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                   <input type="range" min="0" max="23" value={mHour} onChange={e => setMHour(+e.target.value)} style={{ accentColor: "#00c8ff", width: 200 }} />
                   <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, color: "#00c8ff", fontWeight: 700 }}>{fmtH(mHour, u24)}</span>
-                  {allInWorkHours && <span style={{ fontSize: 12, color: "#00c864", fontWeight: 700, background: "rgba(0,200,100,0.12)", padding: "4px 10px", borderRadius: 20 }}>🎯 Perfect — everyone's in work hours!</span>}
+                  {allInWorkHours && <span style={{ fontSize: 12, color: "#00c864", fontWeight: 700, background: "rgba(0,200,100,0.12)", padding: "4px 10px", borderRadius: 20 }}>🎯 Perfect, everyone's in work hours!</span>}
                 </div>
               </div>
 
@@ -1580,7 +1580,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                   {getMeetingConflicts().map(c => (
                     <div key={c.city} style={{ fontSize: 12, color: c.type === "sleep" ? "#ff4560" : "#ffb400", background: c.type === "sleep" ? "rgba(255,69,96,0.08)" : "rgba(255,180,0,0.08)", border: `1px solid ${c.type === "sleep" ? "rgba(255,69,96,0.2)" : "rgba(255,180,0,0.2)"}`, borderRadius: 8, padding: "7px 12px", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
                       {c.type === "sleep" ? "😴" : "⚠️"}
-                      <strong>{c.flag} {c.city}</strong> — {fmtH(c.hour, u24)} · {c.type === "sleep" ? "Likely sleeping" : "Outside work hours"}
+                      <strong>{c.flag} {c.city}</strong>, {fmtH(c.hour, u24)} · {c.type === "sleep" ? "Likely sleeping" : "Outside work hours"}
                     </div>
                   ))}
                 </div>
@@ -1605,7 +1605,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                           const si = getStatusInfo(lh, ws);
                           const isSel = h === mHour;
                           return (
-                            <div key={h} className={`meeting-slot${isSel ? " selected" : ""}`} style={{ background: isSel ? "rgba(0,200,255,0.35)" : si.bg, borderColor: isSel ? "#00c8ff" : "transparent", color: isSel ? "#00c8ff" : "transparent", fontSize: 9 }} onClick={() => setMHour(h)} title={`${fmtH(lh, u24)} in ${zone.name} — ${si.label}`}>
+                            <div key={h} className={`meeting-slot${isSel ? " selected" : ""}`} style={{ background: isSel ? "rgba(0,200,255,0.35)" : si.bg, borderColor: isSel ? "#00c8ff" : "transparent", color: isSel ? "#00c8ff" : "transparent", fontSize: 9 }} onClick={() => setMHour(h)} title={`${fmtH(lh, u24)} in ${zone.name}, ${si.label}`}>
                               {isSel ? fmtH(lh, u24) : ""}
                             </div>
                           );
@@ -1667,7 +1667,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
             {/* Scheduling affiliate nudge */}
             <div style={{ background: "rgba(0,200,255,0.04)", border: "1px solid rgba(0,200,255,0.1)", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#8ba4cc", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <span style={{ fontSize: 16 }}>📆</span>
-              <span style={{ flex: 1 }}>Scheduling lots of meetings? Let people book time with you directly — no back-and-forth emails.</span>
+              <span style={{ flex: 1 }}>Scheduling lots of meetings? Let people book time with you directly, no back-and-forth emails.</span>
               <a href="https://cal.com" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(0,200,255,0.12)", border: "1px solid rgba(0,200,255,0.2)", color: "#00c8ff", fontSize: 12, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>Try Cal.com free →</a>
             </div>
           </div>
@@ -1708,7 +1708,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                       return (
                         <div key={h} style={{ flex: 1, height: 28, background: bg, borderRadius: 3, margin: "0 1px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: count > 0 ? "rgba(255,255,255,0.7)" : "transparent", cursor: "pointer", transition: "opacity 0.15s" }}
                           onClick={() => { setMHour(h); setTab("planner"); setToast({ message: `Meeting planner set to ${fmtH(h, u24)}. Check the summary below.`, emoji: "📅" }); }}
-                          title={`${day} ${fmtH(h, u24)}: ${count}/${zones.length} available — click to use in planner`}
+                          title={`${day} ${fmtH(h, u24)}: ${count}/${zones.length} available, click to use in planner`}
                           onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
                           onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
                           {count > 0 ? count : ""}
@@ -1749,7 +1749,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
                   { format: "D", label: "Long Date", example: "20 April 2024", desc: "Formal announcements" },
                   { format: "f", label: "Date and Time", example: "20 April 2024 9:01 PM", desc: "Most common choice" },
                   { format: "F", label: "Full Date and Time", example: "Tuesday, 20 April 2024", desc: "For important events" },
-                  { format: "R", label: "Relative", example: "in 2 hours / 3 days ago", desc: "Live countdown — updates automatically!" },
+                  { format: "R", label: "Relative", example: "in 2 hours / 3 days ago", desc: "Live countdown, updates automatically!" },
                 ].map(({ format, label, example, desc }) => {
                   const code = generateDiscord(format);
                   const key = `discord_${format}`;
@@ -1770,11 +1770,11 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
               </div>
               <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--bg3)", borderRadius: 10, border: "1px solid var(--border2)" }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>How to use in Discord</p>
-                <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.7 }}>Copy any code above and paste it directly into a Discord message or announcement. Every viewer automatically sees it in their own local timezone — no conversion needed from your viewers.</p>
+                <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.7 }}>Copy any code above and paste it directly into a Discord message or announcement. Every viewer automatically sees it in their own local timezone, no conversion needed from your viewers.</p>
                 <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 6 }}>Works in: servers, DMs, announcements, bots, and embeds.</p>
               </div>
 
-              {/* VPN affiliate — streaming/gaming audience */}
+              {/* VPN affiliate, streaming/gaming audience */}
               <div style={{ marginTop: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>🛡️</span>
                 <div style={{ flex: 1, minWidth: 200 }}>
@@ -1802,7 +1802,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
             )}
             <div style={{ background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12, padding: 18 }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: "#eef4ff", marginBottom: 4, letterSpacing: "-0.3px" }}>Recurring Meeting DST Checker</div>
-              <p style={{ fontSize: 14, color: "#8ba4cc", marginBottom: 16, lineHeight: 1.65 }}>See exactly how Daylight Saving Time shifts your weekly meeting throughout the year. If the time changes in any city, you'll see it highlighted here — so there are no surprises.</p>
+              <p style={{ fontSize: 14, color: "#8ba4cc", marginBottom: 16, lineHeight: 1.65 }}>See exactly how Daylight Saving Time shifts your weekly meeting throughout the year. If the time changes in any city, you'll see it highlighted here, so there are no surprises.</p>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 11, color: "#4a6080", marginBottom: 6, fontWeight: 600 }}>Your recurring meeting time in {zones[0]?.name || "first city"}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -1918,11 +1918,11 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         {/* ── About / SEO ── */}
         <div style={{ marginTop: 40, padding: 24, background: "#0c1730", border: "1px solid var(--border2)", borderRadius: 12 }}>
           <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.5px" }}>About <span style={{ color: "#00c8ff" }}>GlobeOnTime</span></h2>
-          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>GlobeOnTime is the most complete free world timezone tool built for remote teams, digital nomads, gamers, streamers, and global professionals. Add up to 8 cities and instantly see who is working, awake, or sleeping — so you never schedule a 3am call again.</p>
+          <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>GlobeOnTime is the most complete free world timezone tool built for remote teams, digital nomads, gamers, streamers, and global professionals. Add up to 8 cities and instantly see who is working, awake, or sleeping, so you never schedule a 3am call again.</p>
           <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8, marginBottom: 12 }}>Features include live world clocks with public holiday awareness, a Meeting Planner with conflict detection and calendar export, a Team Availability Heatmap, a Discord Timestamp Generator for all 7 Discord time formats, a Recurring Meeting DST Checker, saved team profiles, and an embeddable widget for Notion pages and websites.</p>
           <p style={{ fontSize: 16, color: "#8ba4cc", lineHeight: 1.8 }}>All conversions use your browser's live timezone database for automatic Daylight Saving Time accuracy. No signup required. No data stored on our servers. Free forever.</p>
 
-          {/* VPN affiliate — digital nomads */}
+          {/* VPN affiliate, digital nomads */}
           <div style={{ marginTop: 16, padding: "12px 14px", background: "rgba(0,200,255,0.04)", border: "1px solid rgba(0,200,255,0.12)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 16 }}>🌐</span>
             <span style={{ fontSize: 13, color: "var(--text2)", flex: 1 }}>Working remotely or traveling internationally? Protect your connection with a trusted VPN.</span>
@@ -1936,7 +1936,7 @@ export default function WorldTimezone({ onPrivacy, onAbout }) {
         {/* ── Privacy data note ── */}
         <div style={{ marginTop: 20, padding: "12px 16px", background: "rgba(0,200,100,0.04)", border: "1px solid rgba(0,200,100,0.15)", borderRadius: 10, fontSize: 13, color: "#4a6080", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 16 }}>🔒</span>
-          <span>Your saved teams are stored on <strong style={{ color: "#8ba4cc" }}>your device only</strong> — never on our servers. No account required. No personal data collected.</span>
+          <span>Your saved teams are stored on <strong style={{ color: "#8ba4cc" }}>your device only</strong>, never on our servers. No account required. No personal data collected.</span>
         </div>
       </div>
     </div>
