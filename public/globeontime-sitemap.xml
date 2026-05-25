@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Main page -->
+  <url>
+    <loc>https://globeontime.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Key feature pages (handled by hash/tab routing) -->
+  <url><loc>https://globeontime.com/?tab=planner</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://globeontime.com/?tab=heatmap</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?tab=discord</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?tab=recurring</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://globeontime.com/?tab=converter</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- City pair pages — highest searched combinations -->
+  <url><loc>https://globeontime.com/?cities=New+York,London</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://globeontime.com/?cities=New+York,Tokyo</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://globeontime.com/?cities=London,Dubai</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=Toronto,London</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=New+York,Los+Angeles</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=London,New+York,Tokyo,Sydney</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://globeontime.com/?cities=New+York,London,Paris,Tokyo</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=Toronto,Vancouver,London,Dubai</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://globeontime.com/?cities=New+York,Singapore,Sydney</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=Los+Angeles,London,Tokyo</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://globeontime.com/?cities=New+York,Mumbai,Singapore</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://globeontime.com/?cities=Chicago,London,Berlin</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+</urlset>
