@@ -3,36 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ZoneAtlas" />
     <meta name="theme-color" content="#060d1f" />
-    <meta name="description" content="Free world time zone converter with sleep-aware meeting planner. Compare clocks across cities and find the best meeting times for global teams." />
-
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json" />
-
-    <!-- Apple touch icon (use same icon) -->
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <title>ZoneAtlas — World Time Zone Converter & Meeting Planner</title>
+    <meta name="description" content="Free world timezone tool for remote teams. Live world clocks, meeting planner, team heatmap, Discord timestamps, DST checker and more. 40,000+ cities. No signup required." />
+    <meta name="keywords" content="world timezone, meeting planner, time zone converter, Discord timestamps, team availability, remote work, world clock" />
+    <meta property="og:title" content="GlobeOnTime — World Timezone Tool for Remote Teams" />
+    <meta property="og:description" content="Live world clocks, meeting planner, team heatmap, Discord timestamps and more. Free timezone tool for remote teams. 40,000+ cities." />
+    <meta property="og:url" content="https://globeontime.com" />
+    <meta property="og:type" content="website" />
+    <title>GlobeOnTime — Free World Timezone Tool</title>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2485982449702214"
+     crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Register service worker
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registered:', reg.scope))
-            .catch(err => console.log('SW error:', err));
-        });
-      }
-    </script>
+    <script type="module" src="./src/main.jsx"></script>
   </body>
 </html>
